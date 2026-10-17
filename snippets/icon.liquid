@@ -1,0 +1,11 @@
+{%- comment -%}
+  Draws one icon from the sprite in icon-sprite.liquid.
+
+  Accepts:
+  - name: {String} icon name, for example 'search' or 'arrow'
+  - class: {String} extra CSS classes, for example 'icon--sm' (20 px) or 'icon--xs' (16 px) (optional)
+
+  Usage:
+  {% render 'icon', name: 'search' %}
+{%- endcomment -%}
+<svg class="icon{% if class != blank %} {{ class }}{% endif %}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-{{ name }}"/></svg>

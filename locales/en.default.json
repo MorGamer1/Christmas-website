@@ -1,0 +1,271 @@
+{
+  "accessibility": {
+    "skip_to_text": "Skip to content"
+  },
+  "blogs": {
+    "all": "All",
+    "back": "Back to {{ title }}",
+    "empty_text": "Check back soon for gift ideas and Christmas tips.",
+    "empty_title": "No articles yet",
+    "tags_label": "Filter by topic"
+  },
+  "cart": {
+    "free_shipping": {
+      "label": "Progress towards free shipping",
+      "reached": "You’ve unlocked free shipping",
+      "remaining": "You’re {{ amount }} away from free shipping"
+    },
+    "general": {
+      "added": "Added to your cart: {{ title }}",
+      "checkout": "Checkout",
+      "continue_shopping": "Continue shopping",
+      "empty": "Your cart is empty",
+      "empty_text": "Add a few Christmas favourites and they will show up here.",
+      "error": "Something went wrong. Please try again.",
+      "guest_checkout": "No account needed to check out.",
+      "link_label": {
+        "one": "Cart, {{ count }} item",
+        "other": "Cart, {{ count }} items"
+      },
+      "note": "Note for your order (optional)",
+      "price_each": "{{ price }} each",
+      "quantity_error": "Only {{ quantity }} in stock. We updated your cart.",
+      "quantity_of": "Quantity of {{ title }}",
+      "remove": "Remove",
+      "remove_named": "Remove {{ title }} from the cart",
+      "removed": "Removed from your cart: {{ title }}",
+      "summary": "Order summary",
+      "title": "Your cart",
+      "update": "Update cart",
+      "updated": "Cart updated"
+    },
+    "totals": {
+      "estimated_total": "Estimated total",
+      "free": "Free",
+      "shipping": "Shipping",
+      "subtotal": "Subtotal"
+    }
+  },
+  "christmas": {
+    "date_long": "{{ weekday }} {{ day }} {{ month }}",
+    "date_short": "{{ day }} {{ month }}",
+    "months_long": "January,February,March,April,May,June,July,August,September,October,November,December",
+    "months_short": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec",
+    "weekdays": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday"
+  },
+  "collections": {
+    "all_of": "All {{ title }}",
+    "clear_all": "Clear all",
+    "clear_filters": "Clear filters",
+    "empty_filters": "No products match these filters. Try removing one.",
+    "empty_text": "There are no products in this collection yet.",
+    "empty_title": "No products found",
+    "facets": {
+      "show_no_products": "No products found",
+      "show_one_product": "Show 1 product",
+      "show_products": "Show {{ count }} products"
+    },
+    "filter_and_sort": "Filter and sort",
+    "page_of": "Page {{ current }} of {{ total }}",
+    "price_from": "From",
+    "price_to": "To",
+    "product_count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    },
+    "related": "Related collections",
+    "remove_filter": "Remove filter",
+    "sort": "Sort",
+    "sort_by": "Sort by"
+  },
+  "delivery": {
+    "deadline_closed": "The Christmas order deadline has passed, so new orders may arrive after Christmas.",
+    "deadline_open": "Order by {{ date }} for delivery before Christmas.",
+    "parcels": "Larger orders may arrive in more than one parcel.",
+    "times": "Ships in {{ dispatch }}, then {{ transit }} in transit.",
+    "working_days": {
+      "one": "{{ count }} working day",
+      "other": "{{ count }} working days"
+    },
+    "working_days_range": "{{ min }} to {{ max }} working days"
+  },
+  "general": {
+    "breadcrumbs": {
+      "home": "Home",
+      "label": "Breadcrumb"
+    },
+    "close": "Close",
+    "localization": {
+      "country": "Country or region",
+      "language": "Language",
+      "update": "Update"
+    },
+    "meta": {
+      "page": "Page {{ page }}",
+      "tagged": "Tagged: {{ tags }}"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "next": "Next",
+      "page": "Page {{ number }}",
+      "previous": "Previous"
+    },
+    "payment_methods": "Payment methods"
+  },
+  "price": {
+    "shipping_at_checkout": "Shipping calculated at checkout.",
+    "shipping_both": "Shipping {{ fee }}, free from {{ threshold }}.",
+    "shipping_fee_only": "Shipping {{ fee }}.",
+    "shipping_free_only": "Free shipping from {{ threshold }}.",
+    "tax_excluded": "Taxes calculated at checkout.",
+    "vat_included": "VAT included."
+  },
+  "products": {
+    "product": {
+      "add_named": "Add {{ title }} to the cart",
+      "add_to_cart": "Add to cart",
+      "fold": {
+        "delivery_link": "Delivery details",
+        "description": "Description",
+        "details": "Details",
+        "returns_link": "Returns policy",
+        "safety": "Safety information",
+        "shipping": "Delivery and returns"
+      },
+      "gallery_label": "Product photos",
+      "in_stock": "In stock",
+      "price": {
+        "from": "From",
+        "regular_price": "Regular price",
+        "sale_price": "Sale price"
+      },
+      "quantity": {
+        "decrease": "Decrease quantity",
+        "increase": "Increase quantity",
+        "label": "Quantity"
+      },
+      "safety": {
+        "editor_note": "Safety information is empty. Fill in the GPSR product metafields so shoppers in the EU can see who makes this product. This note is only visible in the editor.",
+        "identifier": "Batch or model:",
+        "manufacturer": "Manufacturer:",
+        "responsible": "EU responsible person:",
+        "warnings": "Warnings:"
+      },
+      "sale": "Sale",
+      "show_image": "Show photo {{ number }}",
+      "sold_out": "Sold out",
+      "thumbs_label": "Choose a photo",
+      "unavailable": "This combination is not available",
+      "variant": "Option",
+      "variant_unavailable": "Unavailable"
+    }
+  },
+  "search": {
+    "collections": "Collections",
+    "empty_text": "Try a product, a room or a gift idea.",
+    "empty_title": "Search the shop",
+    "no_results_for": "No results for “{{ terms }}”",
+    "pages_and_articles": "Pages and articles",
+    "products": "Products",
+    "results_for": {
+      "one": "{{ count }} result for “{{ terms }}”",
+      "other": "{{ count }} results for “{{ terms }}”"
+    },
+    "see_all": "See all results for “{{ terms }}”",
+    "submit": "Search",
+    "suggestions": "Suggestions",
+    "title": "Search",
+    "type_article": "Article",
+    "type_page": "Page"
+  },
+  "sections": {
+    "announcement": {
+      "free_shipping": "Free shipping from {{ amount }}",
+      "label": "Announcement",
+      "order_by": "Order by {{ date }} for Christmas delivery"
+    },
+    "budget": {
+      "label": "Choose a budget"
+    },
+    "collection_list": {
+      "editor_note": "Choose a collection in one of this section’s blocks to show a category tile. Until then this section is hidden on the live store. This note is only visible in the editor."
+    },
+    "contact": {
+      "email": "Email",
+      "message": "Message",
+      "name": "Name",
+      "phone": "Phone (optional)",
+      "send": "Send message",
+      "success": "Thanks, your message is on its way. We will reply by email as soon as we can."
+    },
+    "delivery_band": {
+      "date_label": "Last order date",
+      "editor_note": "This band is hidden on the live store because Christmas messages are off or the last order date has passed. Check Theme settings > Christmas and delivery. This note is only visible in the editor."
+    },
+    "email_signup": {
+      "label": "Email address",
+      "placeholder": "name@example.com",
+      "success": "Thanks for subscribing!"
+    },
+    "featured_collection": {
+      "editor_note": "Choose a collection in this section’s settings to show products here. This note is only visible in the editor."
+    },
+    "header": {
+      "account": "Account",
+      "all_of": "All {{ title }}",
+      "close_search": "Close search",
+      "main_nav": "Main navigation",
+      "menu": "Menu",
+      "mobile_nav": "Mobile navigation",
+      "open_menu": "Open menu",
+      "popular_searches": "Popular searches",
+      "search": "Search",
+      "search_label": "Search the shop",
+      "search_placeholder": "Search lights, baubles, gifts…"
+    },
+    "hero": {
+      "art_alt": "Christmas illustration with glowing fairy lights, baubles and gifts",
+      "art_alt_cosy": "A pile of tartan blankets with a cushion on top",
+      "art_alt_decorations": "Red, gold and green Christmas baubles hanging on thin strings",
+      "art_alt_gifts": "A stack of wrapped Christmas gifts with ribbons",
+      "art_alt_lights": "Strings of warm fairy lights glowing in the dark",
+      "art_alt_table": "Cream candles glowing on a table with sprigs of holly",
+      "carousel": "carousel",
+      "carousel_label": "Store highlights",
+      "controls_label": "Slide controls",
+      "editor_note": "This hero has no slides yet. Add a slide to show it on your home page.",
+      "go_to": "Go to slide {{ number }}",
+      "next": "Next slide",
+      "pause": "Pause slide rotation",
+      "picker_label": "Choose a slide",
+      "play": "Start slide rotation",
+      "previous": "Previous slide",
+      "shop_the_look": "Shop the look",
+      "slide": "slide",
+      "slide_label": "{{ number }} of {{ total }}",
+      "trust_label": "Why shop with us",
+      "view_named": "View {{ title }}"
+    },
+    "list_collections": {
+      "empty_text": "Browse everything in the shop in the meantime.",
+      "empty_title": "No collections yet",
+      "title": "Collections"
+    },
+    "not_found": {
+      "categories": "Popular categories",
+      "home": "Back to the shop",
+      "text": "The page you’re looking for has moved or does not exist. Try a search or pick a category.",
+      "title": "Page not found"
+    },
+    "password": {
+      "enter": "Enter using password",
+      "label": "Password",
+      "owner": "Are you the store owner?",
+      "owner_link": "Log in here",
+      "submit": "Enter"
+    },
+    "reviews": {
+      "editor_note": "No reviews app is connected. Add an app block here to show real customer reviews. This note is only visible in the editor."
+    }
+  }
+}

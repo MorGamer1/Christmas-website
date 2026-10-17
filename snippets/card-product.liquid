@@ -1,0 +1,102 @@
+{%- comment -%}
+  Product card: photo, short tag, title, one line of detail and price.
+  - The tag comes from the product metafield custom.badge ("Indoor", "Set of 6"...). "Sold out" and "Sale" take priority.
+  - The detail line comes from the product metafield custom.subtitle ("Copper wire · USB").
+  - The (+) quick add button shows only for products with a single variant, and can be turned off in Theme settings.
+
+  Accepts:
+  - product: {Object} the product
+  - eager: {Boolean} (optional) true for the photos at the top of the page, so the browser loads them at once
+  - sizes: {String} (optional) the "sizes" attribute for the photo. Defaults to the size of the product grid.
+  - heading: {String} (optional) heading tag for the title. 'h3' by default.
+
+  Usage:
+  <li class="cards__item">{% render 'card-product', product: product, eager: true %}</li>
+{%- endcomment -%}
+{%- liquid
+  assign card_sizes = sizes | default: '(min-width: 1280px) 280px, (min-width: 1024px) 24vw, (min-width: 640px) 31vw, 47vw'
+  assign card_loading = 'lazy'
+  if eager
+    assign card_loading = 'eager'
+  endif
+  assign heading_tag = heading | default: 'h3'
+
+  assign second_image = null
+  if settings.card_secondary_image and product.media.size > 1
+    assign second_image = product.media[1]
+  endif
+
+  assign tag_text = ''
+  if product.available == false
+    assign tag_text = 'products.product.sold_out' | t
+  elsif settings.show_compare_at_price and product.compare_at_price > product.price
+    assign tag_text = 'products.product.sale' | t
+  elsif product.metafields.custom.badge.value != blank
+    assign tag_text = product.metafields.custom.badge.value | escape
+  endif
+-%}
+<article class="card{% if product.available == false %} card--sold-out{% endif %}">
+  <div class="card__top">
+    <div class="card__media">
+      {%- if product.featured_media != blank -%}
+        {{
+          product.featured_media
+          | image_url: width: 900
+          | image_tag:
+            loading: card_loading,
+            sizes: card_sizes,
+            widths: '200, 280, 360, 450, 560, 720, 900',
+            class: 'card__img',
+            alt: product.featured_media.alt
+        }}
+        {%- if second_image != blank -%}
+          {{
+            second_image
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              sizes: card_sizes,
+              widths: '200, 280, 360, 450, 560, 720, 900',
+              class: 'card__img card__img--second',
+              alt: ''
+          }}
+        {%- endif -%}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'card__img card__img--placeholder' }}
+      {%- endif -%}
+
+      {%- if tag_text != blank -%}
+        <span class="card__tag badge badge--snow">{{ tag_text }}</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%}
+      The (+) button sits next to the photo, not inside it, so it stays above the link that covers the whole card.
+    {%- endcomment -%}
+    {%- if settings.card_quick_add and product.available and product.variants.size == 1 -%}
+      {%- form 'product', product, class: 'card__add-form', data-quick-add: '' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <button
+          class="card__add"
+          type="submit"
+          aria-label="{{ 'products.product.add_named' | t: title: product.title }}"
+        >
+          {% render 'icon', name: 'plus' %}
+        </button>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+
+  <div class="card__body">
+    {%- if settings.card_show_vendor and product.vendor != blank -%}
+      <p class="card__vendor">{{ product.vendor | escape }}</p>
+    {%- endif -%}
+    <{{ heading_tag }} class="card__title">
+      <a href="{{ product.url }}">{{ product.title | escape }}</a>
+    </{{ heading_tag }}>
+    {%- if product.metafields.custom.subtitle.value != blank -%}
+      <p class="card__meta">{{ product.metafields.custom.subtitle.value | escape }}</p>
+    {%- endif -%}
+    <p class="card__price">{% render 'price', product: product %}</p>
+  </div>
+</article>

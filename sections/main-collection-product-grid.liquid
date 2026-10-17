@@ -1,0 +1,306 @@
+{%- comment -%}
+  The product grid of a collection, with a "Filter and sort" button, removable filter tags and page numbers.
+  Filters come from Shopify's Search & Discovery app (Apps > Search & Discovery > Filters). Without it, only sorting is offered.
+  Choosing a filter updates the grid without reloading the page (Section Rendering API). Without JavaScript the form still works as a normal page load.
+  An optional long text for search engines can go in the collection metafield custom.seo_text (shown under the grid on page 1).
+{%- endcomment -%}
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+
+  assign has_filters = false
+  if section.settings.enable_filtering and collection.filters.size > 0
+    assign has_filters = true
+  endif
+
+  assign has_sorting = false
+  if section.settings.enable_sorting and collection.sort_options.size > 1
+    assign has_sorting = true
+  endif
+
+  assign filters_active = 0
+  for filter in collection.filters
+    assign filters_active = filters_active | plus: filter.active_values.size
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign filters_active = filters_active | plus: 1
+      endif
+    endif
+  endfor
+
+  assign changes_active = filters_active
+  if has_sorting and sort_by != collection.default_sort_by
+    assign changes_active = changes_active | plus: 1
+  endif
+-%}
+
+{%- paginate collection.products by section.settings.products_per_page -%}
+  <div class="container" data-collection-grid data-section-id="{{ section.id }}">
+    {%- if has_filters or has_sorting -%}
+      <div class="toolbar toolbar--sticky">
+        <p class="muted" id="ProductCount-{{ section.id }}" role="status" data-products-count data-count="{{ collection.products_count }}">
+          {{- 'collections.product_count' | t: count: collection.products_count -}}
+          {%- if paginate.pages > 1 -%}
+            {{ ' · ' }}{{ 'collections.page_of' | t: current: paginate.current_page, total: paginate.pages }}
+          {%- endif -%}
+        </p>
+        <button
+          class="btn btn--secondary"
+          type="button"
+          data-open="FilterDrawer"
+          aria-haspopup="dialog"
+          aria-controls="FilterDrawer"
+        >
+          {% render 'icon', name: 'sliders', class: 'icon--sm' %}
+          {%- if has_filters -%}
+            {{ 'collections.filter_and_sort' | t }}
+          {%- else -%}
+            {{ 'collections.sort' | t }}
+          {%- endif -%}
+          {%- if changes_active > 0 -%}
+            <span class="badge badge--green badge--count" data-filters-badge>{{ changes_active }}</span>
+          {%- endif -%}
+        </button>
+      </div>
+    {%- endif -%}
+
+    <div data-active-filters>
+      {%- if filters_active > 0 -%}
+        <div class="active-filters">
+          {%- for filter in collection.filters -%}
+            {%- for value in filter.active_values -%}
+              <a class="chip chip--tag" href="{{ value.url_to_remove }}" data-filter-remove>
+                <span>{{ filter.label | escape }}: {{ value.label | escape }}</span>
+                {% render 'icon', name: 'close', class: 'icon--xs' %}
+                <span class="visually-hidden">{{ 'collections.remove_filter' | t }}</span>
+              </a>
+            {%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                <a class="chip chip--tag" href="{{ filter.url_to_remove }}" data-filter-remove>
+                  <span>
+                    {{- filter.min_value.value | default: 0 | money }} – {{ filter.max_value.value | default: filter.range_max | money -}}
+                  </span>
+                  {% render 'icon', name: 'close', class: 'icon--xs' %}
+                  <span class="visually-hidden">{{ 'collections.remove_filter' | t }}</span>
+                </a>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <a class="link-btn" href="{{ collection.url }}{% if has_sorting and sort_by != collection.default_sort_by %}?sort_by={{ sort_by }}{% endif %}" data-filter-remove>
+            {{- 'collections.clear_all' | t -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div data-products-grid>
+      {%- if collection.products.size > 0 -%}
+        <ul class="cards" role="list">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign eager_card = false
+              if forloop.index <= 4
+                assign eager_card = true
+              endif
+            -%}
+            <li class="cards__item">
+              {% render 'card-product', product: product, eager: eager_card %}
+            </li>
+          {%- endfor -%}
+        </ul>
+        {% render 'pagination', paginate: paginate %}
+      {%- else -%}
+        <div class="empty">
+          <h2 class="t-heading-m">{{ 'collections.empty_title' | t }}</h2>
+          <p class="muted">
+            {%- if filters_active > 0 -%}
+              {{ 'collections.empty_filters' | t }}
+            {%- else -%}
+              {{ 'collections.empty_text' | t }}
+            {%- endif -%}
+          </p>
+          {%- if filters_active > 0 -%}
+            <a class="btn btn--secondary" href="{{ collection.url }}">{{ 'collections.clear_filters' | t }}</a>
+          {%- else -%}
+            <a class="btn btn--secondary" href="{{ routes.all_products_collection_url }}">
+              {{ 'cart.general.continue_shopping' | t }}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if collection.metafields.custom.seo_text != blank and paginate.current_page == 1 and filters_active == 0 -%}
+      <section class="seo-text rte">
+        {{ collection.metafields.custom.seo_text | metafield_tag }}
+      </section>
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{%- if has_filters or has_sorting -%}
+  <dialog class="layer" id="FilterDrawer" aria-labelledby="FilterTitle">
+    <div class="layer__scrim" data-close></div>
+    <div class="drawer drawer--sheet">
+      <div class="drawer__head">
+        <h2 id="FilterTitle" tabindex="-1">
+          {%- if has_filters -%}
+            {{ 'collections.filter_and_sort' | t }}
+          {%- else -%}
+            {{ 'collections.sort' | t }}
+          {%- endif -%}
+        </h2>
+        <button class="icon-btn" type="button" data-close aria-label="{{ 'general.close' | t }}">
+          {% render 'icon', name: 'close' %}
+        </button>
+      </div>
+
+      <form
+        class="drawer__form"
+        id="FiltersForm-{{ section.id }}"
+        action="{{ collection.url }}"
+        method="get"
+        data-filters-form
+        data-section-id="{{ section.id }}"
+      >
+        <div class="drawer__body">
+          {%- if has_sorting -%}
+            <fieldset class="sheet-group">
+              <legend>{{ 'collections.sort_by' | t }}</legend>
+              {%- for option in collection.sort_options -%}
+                <label class="radio">
+                  <input
+                    type="radio"
+                    name="sort_by"
+                    value="{{ option.value | escape }}"
+                    {% if option.value == sort_by %}
+                      checked
+                    {% endif %}
+                  >
+                  {{ option.name | escape }}
+                </label>
+              {%- endfor -%}
+            </fieldset>
+          {%- endif -%}
+
+          {%- if has_filters -%}
+            {%- for filter in collection.filters -%}
+              {%- case filter.type -%}
+                {%- when 'boolean', 'list' -%}
+                  <fieldset class="sheet-group">
+                    <legend>{{ filter.label | escape }}</legend>
+                    {%- for value in filter.values -%}
+                      {%- liquid
+                        assign value_disabled = false
+                        if value.count == 0 and value.active == false
+                          assign value_disabled = true
+                        endif
+                      -%}
+                      <label class="radio{% if value_disabled %} is-disabled{% endif %}">
+                        <input
+                          type="checkbox"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value | escape }}"
+                          id="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}"
+                          {% if value.active %}
+                            checked
+                          {% endif %}
+                          {% if value_disabled %}
+                            disabled
+                          {% endif %}
+                        >
+                        {{ value.label | escape }}
+                        <span class="radio__count" data-filter-count="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}">({{ value.count }})</span>
+                      </label>
+                    {%- endfor -%}
+                  </fieldset>
+                {%- when 'price_range' -%}
+                  <fieldset class="sheet-group">
+                    <legend>{{ filter.label | escape }}</legend>
+                    <div class="price-range">
+                      <div class="field">
+                        <label for="Filter-{{ section.id }}-min">{{ 'collections.price_from' | t }} ({{ cart.currency.symbol }})</label>
+                        <input
+                          class="input"
+                          id="Filter-{{ section.id }}-min"
+                          name="{{ filter.min_value.param_name }}"
+                          type="text"
+                          inputmode="decimal"
+                          placeholder="0"
+                          {% if filter.min_value.value != nil %}
+                            value="{{ filter.min_value.value | money_without_currency }}"
+                          {% endif %}
+                        >
+                      </div>
+                      <div class="field">
+                        <label for="Filter-{{ section.id }}-max">{{ 'collections.price_to' | t }} ({{ cart.currency.symbol }})</label>
+                        <input
+                          class="input"
+                          id="Filter-{{ section.id }}-max"
+                          name="{{ filter.max_value.param_name }}"
+                          type="text"
+                          inputmode="decimal"
+                          placeholder="{{ filter.range_max | money_without_currency }}"
+                          {% if filter.max_value.value != nil %}
+                            value="{{ filter.max_value.value | money_without_currency }}"
+                          {% endif %}
+                        >
+                      </div>
+                    </div>
+                  </fieldset>
+              {%- endcase -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+
+        <div class="drawer__foot">
+          <button class="btn btn--primary btn--l btn--block" type="submit" data-apply>
+            {%- case collection.products_count -%}
+              {%- when 0 -%}
+                {{- 'collections.facets.show_no_products' | t -}}
+              {%- when 1 -%}
+                {{- 'collections.facets.show_one_product' | t -}}
+              {%- else -%}
+                {{- 'collections.facets.show_products' | t: count: collection.products_count -}}
+            {%- endcase -%}
+          </button>
+          <a class="btn btn--text" href="{{ collection.url }}" data-filter-remove>
+            <span class="u">{{ 'collections.clear_all' | t }}</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </dialog>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product grid",
+  "class": "section-collection-grid",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "label": "Products per page",
+      "default": 24,
+      "info": "A number that divides by 2, 3 and 4 (12, 24, 36, 48) keeps every row full."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Allow filtering",
+      "default": true,
+      "info": "Filters are set up in the Search & Discovery app."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Allow sorting",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

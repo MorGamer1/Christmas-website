@@ -1,0 +1,31 @@
+{%- comment -%}
+  Prints the space above and below a section, from the "Top padding" and "Bottom padding" sliders in the theme editor.
+  The numbers are the desktop values. Phones get about two thirds of them, tablets a bit more.
+  The section's outer element must carry the class "section-{{ section.id }}-padding".
+
+  Accepts:
+  - section: {Object} the section
+
+  Usage:
+  {% render 'section-padding', section: section %}
+{%- endcomment -%}
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.64 | round }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.64 | round }}px;
+  }
+
+  @media screen and (min-width: 640px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.82 | round }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.82 | round }}px;
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}

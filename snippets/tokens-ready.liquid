@@ -1,0 +1,35 @@
+{%- comment -%}
+  Prints "yes" when every {token} in a text has something to show, and "no" when one of them would come out empty.
+  A text with {date} needs the Christmas dates to be switched on and not past; {returns}, {free_shipping} and {shipping_fee}
+  need a value in Theme settings > Christmas and delivery. Use it to hide a badge or a trust point instead of showing half a sentence.
+
+  Accepts:
+  - text: {String} the text that may contain tokens
+  - season: {String} what the christmas-state snippet printed: 'open', 'closed' or 'off'
+
+  Usage (a snippet cannot return a value, so capture what it prints):
+  {% capture ready %}{% render 'tokens-ready', text: block.settings.text, season: season %}{% endcapture %}
+  {% if ready == 'yes' %} ... {% endif %}
+{%- endcomment -%}
+{%- liquid
+  assign ready = 'yes'
+  if text contains '{date}' or text contains '{short_date}'
+    unless season == 'open'
+      assign ready = 'no'
+    endunless
+  endif
+  if text contains '{returns}' and settings.returns_days == blank
+    assign ready = 'no'
+  endif
+  if text contains '{free_shipping}'
+    unless settings.free_shipping_threshold > 0
+      assign ready = 'no'
+    endunless
+  endif
+  if text contains '{shipping_fee}'
+    unless settings.shipping_fee > 0
+      assign ready = 'no'
+    endunless
+  endif
+  echo ready
+-%}

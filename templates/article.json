@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "settings": {
+        "show_author": false,
+        "padding_top": 0,
+        "padding_bottom": 88
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

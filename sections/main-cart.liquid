@@ -1,0 +1,116 @@
+{%- comment -%}
+  The cart page: product lines on the left, totals and the checkout button on the right.
+  Shown on /cart. When Theme settings > Cart > Cart type is "Page", every "add to cart" ends here.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  assign guests_allowed = false
+  if shop.customer_accounts_enabled == false or shop.customer_accounts_optional
+    assign guests_allowed = true
+  endif
+-%}
+<div
+  class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+  data-cart-section
+  data-section-id="{{ section.id }}"
+>
+  <div class="container">
+    <div class="cartpage__head">
+      <h1 class="t-display-l">{{ 'cart.general.title' | t }}</h1>
+      <a class="link-arrow" href="{{ routes.all_products_collection_url }}">
+        <span class="u">{{ 'cart.general.continue_shopping' | t }}</span>
+        {% render 'icon', name: 'arrow', class: 'icon--sm' %}
+      </a>
+    </div>
+
+    <div data-cart-inner>
+      {%- if cart.item_count == 0 -%}
+        <div class="drawer__empty">
+          <p class="t-heading-m">{{ 'cart.general.empty' | t }}</p>
+          <p class="muted">{{ 'cart.general.empty_text' | t }}</p>
+          <a class="btn btn--primary btn--l" href="{{ routes.all_products_collection_url }}">
+            {{ 'cart.general.continue_shopping' | t }}
+          </a>
+        </div>
+      {%- else -%}
+        <form class="cartpage" action="{{ routes.cart_url }}" method="post" id="CartForm" data-cart-form>
+          <div class="cartpage__lines">
+            {% render 'free-shipping-progress' %}
+            <ul role="list">
+              {%- for item in cart.items -%}
+                {% render 'cart-line', item: item, index: forloop.index, context: 'page' %}
+              {%- endfor -%}
+            </ul>
+
+            {%- if settings.cart_note -%}
+              <div class="field cartpage__note">
+                <label for="CartNote">{{ 'cart.general.note' | t }}</label>
+                <textarea class="textarea" id="CartNote" name="note" rows="3">{{ cart.note }}</textarea>
+              </div>
+            {%- endif -%}
+
+            <noscript>
+              <button class="btn btn--secondary" type="submit" name="update">{{ 'cart.general.update' | t }}</button>
+            </noscript>
+          </div>
+
+          <aside class="cartpage__summary" aria-label="{{ 'cart.general.summary' | t }}">
+            {% render 'cart-totals' %}
+            <button class="btn btn--primary btn--l btn--block" type="submit" name="checkout">
+              {{ 'cart.general.checkout' | t }}
+            </button>
+            {%- if additional_checkout_buttons -%}
+              <div class="cartpage__express">{{ content_for_additional_checkout_buttons }}</div>
+            {%- endif -%}
+            {%- if guests_allowed -%}
+              <p class="t-body-s muted" style="text-align: center">{{ 'cart.general.guest_checkout' | t }}</p>
+            {%- endif -%}
+            <p class="note">
+              {% render 'icon', name: 'truck' %}
+              <span>{% render 'delivery-note', context: 'cart' %}</span>
+            </p>
+            {% render 'payment-icons', ids: false %}
+          </aside>
+        </form>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ]
+}
+{% endschema %}

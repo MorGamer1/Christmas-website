@@ -1,0 +1,157 @@
+{%- comment -%}
+  Thin bar above the header. Each block is one short message. Messages sit on one line, separated by a small star.
+  "Free shipping" and "Christmas deadline" write themselves from Theme settings > Christmas and delivery,
+  so the date and the amount are only ever typed in one place.
+{%- endcomment -%}
+{%- liquid
+  capture delivery_url
+    render 'policy-url', kind: 'delivery'
+  endcapture
+
+  capture season
+    render 'christmas-state'
+  endcapture
+
+  assign has_link = false
+  if section.settings.link_label != blank and delivery_url != blank
+    assign has_link = true
+  endif
+-%}
+
+<div
+  class="announce color-{{ section.settings.color_scheme }}"
+  role="region"
+  aria-label="{{ 'sections.announcement.label' | t }}"
+>
+  <p>
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign item_text = ''
+        case block.type
+          when 'free_shipping'
+            if settings.free_shipping_threshold > 0 and cart.currency.iso_code == shop.currency
+              assign amount_text = settings.free_shipping_threshold | times: 100 | round | money_without_trailing_zeros
+              assign item_text = 'sections.announcement.free_shipping' | t: amount: amount_text
+            endif
+          when 'christmas'
+            if season == 'open'
+              capture date_text
+                render 'christmas-date', format: 'short'
+              endcapture
+              assign item_text = 'sections.announcement.order_by' | t: date: date_text
+            endif
+          when 'text'
+            assign item_text = block.settings.text | escape
+        endcase
+        assign show_star = true
+        if forloop.last and has_link == false
+          assign show_star = false
+        endif
+      -%}
+      {%- if item_text != blank -%}
+        <span
+          class="announce__item{% if block.settings.hide_on_mobile %} announce__item--hide-mobile{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {{- item_text -}}
+          {%- if show_star -%}
+            <svg class="announce__star" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-sparkle"/></svg>
+          {%- endif -%}
+        </span>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if has_link -%}
+      <a href="{{ delivery_url }}">{{ section.settings.link_label | escape }}</a>
+    {%- endif -%}
+  </p>
+</div>
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "class": "section-announcement",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link text",
+      "default": "Delivery dates",
+      "info": "Links to your delivery page. Leave empty for no link."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "free_shipping",
+      "name": "Free shipping",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Writes \"Free shipping over €45\" from Theme settings > Christmas and delivery. Hidden if no amount is set."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_mobile",
+          "label": "Hide on phones",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "christmas",
+      "name": "Christmas deadline",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Writes \"Order by 8 Dec for Christmas delivery\" from Theme settings > Christmas and delivery. Hidden after the last order date."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_mobile",
+          "label": "Hide on phones",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Your message here"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_mobile",
+          "label": "Hide on phones",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "blocks": [
+        {
+          "type": "free_shipping"
+        },
+        {
+          "type": "christmas"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

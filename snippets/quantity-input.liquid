@@ -1,0 +1,40 @@
+{%- comment -%}
+  Quantity stepper: [ - ] 1 [ + ]. The buttons work through theme.js; the number field also works on its own.
+
+  Accepts:
+  - id: {String} id for the number field
+  - label: {String} accessible name for the group, for example "Quantity of Warm white fairy lights"
+  - value: {Number} (optional) starting quantity, 1 by default
+  - min: {Number} (optional) smallest quantity, 1 by default. Use 0 in the cart so the field can remove a line.
+  - max: {Number} (optional) largest quantity
+  - name: {String} (optional) field name, 'quantity' by default
+  - size: {String} (optional) 'sm' for the compact version used in the cart
+  - line: {Number} (optional) cart line number, so theme.js knows which line changed
+
+  Usage:
+  {% render 'quantity-input', id: 'Quantity-main', label: 'Quantity', value: 1 %}
+{%- endcomment -%}
+<div class="qty{% if size == 'sm' %} qty--sm{% endif %}" role="group" aria-label="{{ label | escape }}" data-qty>
+  <button class="qty__btn" type="button" data-qty-step="-1" aria-label="{{ 'products.product.quantity.decrease' | t }}">
+    {% render 'icon', name: 'minus', class: 'icon--sm' %}
+  </button>
+  <input
+    class="qty__input"
+    type="number"
+    id="{{ id }}"
+    name="{{ name | default: 'quantity' }}"
+    value="{{ value | default: 1 }}"
+    min="{{ min | default: 1 }}"
+    {% if max != blank %}
+      max="{{ max }}"
+    {% endif %}
+    inputmode="numeric"
+    aria-label="{{ 'products.product.quantity.label' | t }}"
+    {% if line != blank %}
+      data-line="{{ line }}"
+    {% endif %}
+  >
+  <button class="qty__btn" type="button" data-qty-step="1" aria-label="{{ 'products.product.quantity.increase' | t }}">
+    {% render 'icon', name: 'plus', class: 'icon--sm' %}
+  </button>
+</div>

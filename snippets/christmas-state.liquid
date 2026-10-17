@@ -1,0 +1,27 @@
+{%- comment -%}
+  Prints one word that says where we are in the Christmas season:
+  - open    before the last order date (Christmas delivery can still be promised)
+  - closed  after it (orders may arrive late)
+  - off     messages are switched off, or no valid date is set
+
+  Usage (a snippet cannot return a value, so capture what it prints):
+  {% capture season %}{% render 'christmas-state' %}{% endcapture %}
+  {% if season == 'open' %} ... {% endif %}
+
+  The date comes from Theme settings > Christmas and delivery. It must be written as year-month-day.
+{%- endcomment -%}
+{%- liquid
+  assign season_state = 'off'
+  if settings.christmas_enabled and settings.christmas_cutoff_date.size == 10
+    assign cutoff_number = settings.christmas_cutoff_date | remove: '-' | plus: 0
+    assign today_number = 'now' | date: '%Y%m%d' | plus: 0
+    if cutoff_number > 20000000
+      if today_number > cutoff_number
+        assign season_state = 'closed'
+      else
+        assign season_state = 'open'
+      endif
+    endif
+  endif
+  echo season_state
+-%}

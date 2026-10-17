@@ -1,0 +1,24 @@
+{%- comment -%}
+  Prints the last order date in the shop language, for example "Tuesday 8 December" or "8 Dec".
+  The day and month names live in the language files (locales/*.json), so they translate with the shop.
+
+  Accepts:
+  - format: {String} 'long' (default) or 'short'
+
+  Usage:
+  {% capture date_text %}{% render 'christmas-date', format: 'short' %}{% endcapture %}
+{%- endcomment -%}
+{%- liquid
+  assign date_iso = settings.christmas_cutoff_date
+  assign date_day = date_iso | date: '%-d'
+  assign month_index = date_iso | date: '%-m' | plus: 0 | minus: 1
+  if format == 'short'
+    assign month_names = 'christmas.months_short' | t | split: ','
+    echo 'christmas.date_short' | t: day: date_day, month: month_names[month_index]
+  else
+    assign weekday_index = date_iso | date: '%w' | plus: 0
+    assign weekday_names = 'christmas.weekdays' | t | split: ','
+    assign month_names = 'christmas.months_long' | t | split: ','
+    echo 'christmas.date_long' | t: weekday: weekday_names[weekday_index], day: date_day, month: month_names[month_index]
+  endif
+-%}

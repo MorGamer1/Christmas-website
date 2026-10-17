@@ -1,0 +1,172 @@
+{%- comment -%}
+  The big "last order date" panel with three steps: you order, we dispatch, it arrives.
+  The date comes from Theme settings > Christmas and delivery. The panel is hidden by itself after that date
+  (and while Christmas messages are switched off). In the theme editor it always shows, with a note.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  capture season
+    render 'christmas-state'
+  endcapture
+
+  capture delivery_url
+    render 'policy-url', kind: 'delivery'
+  endcapture
+
+  assign button_url = section.settings.button_link | default: delivery_url
+-%}
+{%- if season == 'open' or request.design_mode -%}
+  <section class="section-{{ section.id }}-padding" aria-labelledby="Heading-{{ section.id }}">
+    <div class="container">
+      {%- if season != 'open' -%}
+        <p class="callout" style="margin-bottom: 16px">
+          {% render 'icon', name: 'info' %}
+          <span>{{ 'sections.delivery_band.editor_note' | t }}</span>
+        </p>
+      {%- endif -%}
+      <div class="band color-{{ section.settings.color_scheme }}">
+        <div>
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+          <h2 class="band__date" id="Heading-{{ section.id }}">
+            <span class="visually-hidden">{{ 'sections.delivery_band.date_label' | t }}</span>
+            {% render 'christmas-date', format: 'short' %}
+          </h2>
+          {%- if section.settings.text != blank -%}
+            <p class="t-body-l band__text">{% render 'replace-tokens', text: section.settings.text %}</p>
+          {%- endif -%}
+          {%- if section.settings.button_label != blank and button_url != blank -%}
+            <a class="btn btn--primary btn--l" href="{{ button_url }}">{{ section.settings.button_label | escape }}</a>
+          {%- endif -%}
+        </div>
+
+        {%- if section.blocks.size > 0 -%}
+          <ol class="steps">
+            {%- for block in section.blocks -%}
+              <li class="step" {{ block.shopify_attributes }}>
+                <span class="step__n" aria-hidden="true">{{ forloop.index | prepend: '0' }}</span>
+                <h3>{{ block.settings.heading | escape }}</h3>
+                <p>{% render 'replace-tokens', text: block.settings.text %}</p>
+              </li>
+            {%- endfor -%}
+          </ol>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Delivery deadline",
+  "tag": "section",
+  "class": "section-delivery",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Panel colour scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small heading",
+      "default": "Delivery before Christmas"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "is the last day to order and get it before Christmas Eve. After that we can't promise delivery in time, and your cart will tell you before you pay.",
+      "info": "Continues the sentence after the big date. You can use {date} {short_date} {dispatch} {transit} {returns} {free_shipping} {shipping_fee}."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button text",
+      "default": "See delivery details"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "If empty, the button goes to the delivery page set in Theme settings."
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "You order"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Place your order by {date}."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Delivery deadline",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "heading": "You order",
+            "text": "Place your order by {date}."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "heading": "We dispatch",
+            "text": "Packed and sent within {dispatch}. You get a tracking link by email."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "heading": "It arrives",
+            "text": "Usually {transit} later, before Christmas Eve. Large orders can arrive in more than one parcel."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,96 @@
+{%- comment -%}
+  Prints the fonts, the colour schemes and the design tokens that every page needs, as CSS in the <head>.
+  - Fonts: Bricolage Grotesque and Geist are included in the theme (assets). Turn on "Use custom fonts" in Theme settings > Typography to choose your own.
+  - Colour schemes: one CSS class per scheme (.color-scheme-1 ...). A section that wears the class re-colours everything inside it.
+  - Tokens: the page width, the logo width and the photo shape come from Theme settings.
+
+  Usage:
+  {% render 'css-variables' %}
+{%- endcomment -%}
+{% style %}
+  {%- if settings.use_custom_fonts -%}
+    {{ settings.custom_heading_font | font_face: font_display: 'swap' }}
+    {{ settings.custom_body_font | font_face: font_display: 'swap' }}
+  {%- else -%}
+    @font-face {
+      font-family: 'Bricolage Grotesque';
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+      src: url({{ 'bricolage-grotesque-latin-opsz.woff2' | asset_url }}) format('woff2');
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+    @font-face {
+      font-family: 'Bricolage Grotesque';
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+      src: url({{ 'bricolage-grotesque-latin-ext-opsz.woff2' | asset_url }}) format('woff2');
+      unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Geist';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url({{ 'geist-latin-wght.woff2' | asset_url }}) format('woff2');
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+    @font-face {
+      font-family: 'Geist';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url({{ 'geist-latin-ext-wght.woff2' | asset_url }}) format('woff2');
+      unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+    }
+  {%- endif -%}
+
+  /* One class per colour scheme. A section that wears the class re-colours everything inside it. */
+  {% for scheme in settings.color_schemes -%}
+    {% if forloop.first %}:root,{% endif %}
+    .color-{{ scheme.id }} {
+      --bg: {{ scheme.settings.background }};
+      --bg-surface: {{ scheme.settings.surface }};
+      --bg-raised: {{ scheme.settings.raised }};
+      --border: {{ scheme.settings.border }};
+      --border-strong: {{ scheme.settings.border_strong }};
+      --text: {{ scheme.settings.text }};
+      --text-muted: {{ scheme.settings.text_muted }};
+      --icon: {{ scheme.settings.icon }};
+      --accent: {{ scheme.settings.accent }};
+      --btn-bg: {{ scheme.settings.button }};
+      --btn-fg: {{ scheme.settings.button_label }};
+      --btn-hover: {{ scheme.settings.button_hover }};
+      --focus: {{ scheme.settings.focus }};
+      background: var(--bg);
+      color: var(--text);
+    }
+  {% endfor %}
+
+  :root {
+    {%- if settings.use_custom_fonts %}
+    --font-display: {{ settings.custom_heading_font.family }}, {{ settings.custom_heading_font.fallback_families }};
+    --font-body: {{ settings.custom_body_font.family }}, {{ settings.custom_body_font.fallback_families }};
+    {%- else %}
+    --font-display: 'Bricolage Grotesque', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    {%- endif %}
+    --size-container: {{ settings.page_width }}px;
+    --logo-width: {{ settings.logo_width }}px;
+    {%- case settings.media_ratio %}
+      {%- when 'square' %}
+    --card-ratio: 1 / 1;
+    --gallery-ratio: 1 / 1;
+    --gallery-ratio-mobile: 1 / 1;
+      {%- when 'landscape' %}
+    --card-ratio: 4 / 3;
+    --gallery-ratio: 4 / 3;
+    --gallery-ratio-mobile: 4 / 3;
+      {%- else %}
+    --card-ratio: 4 / 5;
+    --gallery-ratio: 4 / 5;
+    --gallery-ratio-mobile: 8 / 9;
+    {%- endcase %}
+  }
+{% endstyle %}

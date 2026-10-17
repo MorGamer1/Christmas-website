@@ -1,0 +1,166 @@
+{%- comment -%}
+  "Questions, answered": a short intro on the left and a list of questions that open and close on the right.
+  Answers can use the same {tokens} as the rest of the theme, so dates and prices stay in sync.
+  A question can be hidden by itself after the last order date (useful for "When do I need to order by?").
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  capture season
+    render 'christmas-state'
+  endcapture
+-%}
+<section
+  class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+  aria-labelledby="Heading-{{ section.id }}"
+>
+  <div class="container faq">
+    <div class="faq__intro">
+      <h2 class="t-heading-l" id="Heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="muted">{% render 'replace-tokens', text: section.settings.text %}</p>
+      {%- endif -%}
+    </div>
+    <div>
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign show_question = true
+          if block.settings.christmas_only and season != 'open'
+            assign show_question = false
+          endif
+        -%}
+        {%- if show_question and block.settings.question != blank -%}
+          <details class="acc" {{ block.shopify_attributes }}>
+            <summary>
+              {{- block.settings.question | escape -}}
+              {%- render 'icon', name: 'down', class: 'icon--sm' -%}
+            </summary>
+            <div class="acc__body">{% render 'replace-tokens', text: block.settings.answer, html: true %}</div>
+          </details>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Questions (FAQ)",
+  "tag": "section",
+  "class": "section-faq",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Questions, answered"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Still unsure? Write to {email} and we reply within one working day.",
+      "info": "{email} is the support email from Theme settings, or the store email."
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Answer</p>",
+          "info": "You can use {date} {short_date} {dispatch} {transit} {returns} {free_shipping} {shipping_fee} {email}."
+        },
+        {
+          "type": "checkbox",
+          "id": "christmas_only",
+          "label": "Hide after the last order date",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Questions (FAQ)",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "When do I need to order by?",
+            "answer": "<p>Order by {date} and your order should arrive before Christmas Eve. After that date we cannot promise Christmas delivery, and your cart will say so before you pay.</p>",
+            "christmas_only": true
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Where do the products ship from?",
+            "answer": "<p>Most products are sent directly from our supplier partners' warehouses, so one order can arrive in more than one parcel. Each parcel has its own tracking link, sent by email when it leaves the warehouse.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How much is delivery?",
+            "answer": "<p>Delivery is {shipping_fee}, and free when your order is {free_shipping} or more. The total is shown in your cart before checkout. VAT is included in every price.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Can I send something back?",
+            "answer": "<p>Yes. You can return unused items within {returns} days of receiving them. Start a return by emailing us and we will send the instructions.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do I know the products are safe?",
+            "answer": "<p>Every product page has a <em>Safety and manufacturer information</em> section with the manufacturer's name and address and any warnings. Indoor lights are for indoor use only; outdoor lights say so on the page.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

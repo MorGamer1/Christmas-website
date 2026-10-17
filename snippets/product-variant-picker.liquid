@@ -1,0 +1,52 @@
+{%- comment -%}
+  Option buttons for a product: one row per option (Length, Colour ...), one pill per value.
+  theme.js keeps them in step with the variants, the price, the photos and the add to cart button.
+  Without JavaScript, a plain list of variants is offered instead (see sections/main-product.liquid).
+
+  Accepts:
+  - product: {Object} the product
+  - section_id: {String} the id of the section, to keep input ids unique
+  - form_id: {String} the id of the product form the inputs belong to
+
+  Usage:
+  {% render 'product-variant-picker', product: product, section_id: section.id, form_id: product_form_id %}
+{%- endcomment -%}
+{%- unless product.has_only_default_variant -%}
+  <div class="opts-group" data-variant-picker>
+    {%- for option in product.options_with_values -%}
+      <fieldset class="opts" data-option-index="{{ forloop.index0 }}">
+        <legend>
+          {{- option.name | escape -}}:
+          <span data-option-label>{{ option.selected_value | escape }}</span>
+        </legend>
+        <div class="opts__row">
+          {%- for value in option.values -%}
+            {%- assign input_id = section_id | append: '-option-' | append: option.position | append: '-' | append: forloop.index0 -%}
+            <label class="opt{% unless value.available %} is-unavailable{% endunless %}">
+              <input
+                type="radio"
+                id="{{ input_id }}"
+                name="{{ option.name | escape }}-{{ section_id }}"
+                value="{{ value.name | escape }}"
+                form="{{ form_id }}"
+                data-option-value
+                {% if value.selected %}
+                  checked
+                {% endif %}
+              >
+              <span>
+                {%- if value.swatch.color -%}
+                  <span class="opt__swatch" style="background: rgb({{ value.swatch.color.rgb }})"></span>
+                {%- elsif value.swatch.image -%}
+                  <span class="opt__swatch" style="background-image: url({{ value.swatch.image | image_url: width: 48 }})"></span>
+                {%- endif -%}
+                {{- value.name | escape -}}
+                <span class="visually-hidden opt__sold-out">{{ 'products.product.variant_unavailable' | t }}</span>
+              </span>
+            </label>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    {%- endfor -%}
+  </div>
+{%- endunless -%}

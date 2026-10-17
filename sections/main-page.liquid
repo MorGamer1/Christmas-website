@@ -1,0 +1,48 @@
+{%- comment -%}
+  A normal page (Online Store > Pages): delivery, returns, about, privacy ...
+  The text is written in the page editor. For the Christmas deadline and the delivery times, type the same {tokens}
+  as in the theme editor ({date}, {dispatch}, {transit} ...), they are filled in from Theme settings.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+<div class="container section-{{ section.id }}-padding">
+  {% render 'breadcrumbs', current: page.title %}
+  <article class="prose">
+    <h1 class="t-display-l">{{ page.title | escape }}</h1>
+    <div class="rte">
+      {% render 'replace-tokens', text: page.content, html: true %}
+    </div>
+  </article>
+</div>
+
+{% schema %}
+{
+  "name": "Page",
+  "class": "section-page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ]
+}
+{% endschema %}

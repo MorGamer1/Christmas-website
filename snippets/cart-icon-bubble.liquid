@@ -1,0 +1,18 @@
+{%- comment -%}
+  The bag icon with the number of items in the cart.
+  After something is added, theme.js asks Shopify for a fresh copy through sections/cart-icon-bubble.liquid.
+
+  Usage:
+  <a href="{{ routes.cart_url }}" id="cart-icon-bubble">{% render 'cart-icon-bubble' %}</a>
+{%- endcomment -%}
+{% render 'icon', name: 'bag' %}
+<span class="visually-hidden">{{ 'cart.general.link_label' | t: count: cart.item_count }}</span>
+{%- if cart.item_count > 0 -%}
+  <span class="count tnum" aria-hidden="true">
+    {%- if cart.item_count > 99 -%}
+      99+
+    {%- else -%}
+      {{- cart.item_count -}}
+    {%- endif -%}
+  </span>
+{%- endif -%}

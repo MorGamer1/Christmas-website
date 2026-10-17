@@ -1,0 +1,533 @@
+{%- comment -%}
+  The product page: photo gallery on the left and the buying column on the right.
+  The buying column is made of blocks that you can reorder in the theme editor: title, price, highlights, option buttons,
+  add to cart, delivery note, trust points and folding sections (description, details, safety, shipping).
+
+  Product metafields used (create them in Settings > Custom data > Products, namespace "custom"):
+  - highlights               List of single line text    short bullet points under the price
+  - details                  Multi-line text             one "Label: value" per line, shown as a table
+  - badge                    Single line text            small tag on product cards (read by card-product.liquid)
+  - subtitle                 Single line text            one line of detail on product cards
+  - gpsr_manufacturer        Multi-line text             EU product safety: manufacturer name, address, email
+  - gpsr_responsible_person  Multi-line text             EU product safety: EU responsible person or importer
+  - gpsr_identifier          Single line text            EU product safety: model, batch or type number
+  - gpsr_warnings            Multi-line text             EU product safety: warnings
+{%- endcomment -%}
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign current_variant = product.selected_or_first_available_variant
+
+  assign crumb_collection = collection
+  if crumb_collection == blank
+    for product_collection in product.collections
+      unless product_collection.handle == 'all' or product_collection.handle == 'frontpage'
+        assign crumb_collection = product_collection
+        break
+      endunless
+    endfor
+  endif
+
+  capture delivery_url
+    render 'policy-url', kind: 'delivery'
+  endcapture
+
+  capture returns_url
+    render 'policy-url', kind: 'returns'
+  endcapture
+
+  assign skip_until = -1
+-%}
+
+<div
+  class="container"
+  data-product-section
+  data-section-id="{{ section.id }}"
+  data-product-url="{{ product.url }}"
+  data-form-id="{{ product_form_id }}"
+>
+  {% render 'breadcrumbs',
+    crumb_1_title: crumb_collection.title,
+    crumb_1_url: crumb_collection.url,
+    current: product.title
+  %}
+
+  <div class="pdp">
+    {%- comment -%} Gallery {%- endcomment -%}
+    <div class="gallery" data-gallery>
+      <div class="gallery__main">
+        {%- if product.media.size > 0 -%}
+          <ul
+            class="gallery__slides"
+            role="list"
+            tabindex="0"
+            aria-label="{{ 'products.product.gallery_label' | t }}"
+            data-gallery-slides
+          >
+            {%- for media in product.media -%}
+              <li class="gallery__slide" data-media-id="{{ media.id }}">
+                {%- liquid
+                  assign slide_loading = 'lazy'
+                  assign slide_priority = 'auto'
+                  if forloop.first
+                    assign slide_loading = 'eager'
+                    assign slide_priority = 'high'
+                  endif
+                -%}
+                {%- case media.media_type -%}
+                  {%- when 'video' -%}
+                    {{ media | video_tag: image_size: '1100x', loop: false, controls: true, class: 'gallery__video' }}
+                  {%- when 'external_video' -%}
+                    {{ media | external_video_tag: class: 'gallery__video' }}
+                  {%- else -%}
+                    {{
+                      media
+                      | image_url: width: 1500
+                      | image_tag:
+                        class: 'gallery__img',
+                        loading: slide_loading,
+                        fetchpriority: slide_priority,
+                        sizes: '(min-width: 1280px) 640px, (min-width: 1024px) 52vw, 100vw',
+                        widths: '360, 540, 720, 900, 1200, 1500',
+                        alt: media.alt | default: product.title
+                    }}
+                {%- endcase -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <div class="gallery__empty">{{ 'product-1' | placeholder_svg_tag: 'gallery__img gallery__img--placeholder' }}</div>
+        {%- endif -%}
+      </div>
+
+      {%- if product.media.size > 1 -%}
+        <div class="gallery__thumbs" role="group" aria-label="{{ 'products.product.thumbs_label' | t }}">
+          {%- for media in product.media -%}
+            <button
+              class="thumb"
+              type="button"
+              data-thumb="{{ media.id }}"
+              aria-label="{{ 'products.product.show_image' | t: number: forloop.index }}"
+              aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+            >
+              {{
+                media.preview_image
+                | image_url: width: 180
+                | image_tag: class: 'thumb__img', loading: 'lazy', widths: '72, 108, 144, 180', sizes: '72px', alt: ''
+              }}
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Buying column {%- endcomment -%}
+    <div class="buy">
+      {%- for block in section.blocks -%}
+        {%- assign block_index = forloop.index0 -%}
+        {%- comment -%} Items already printed as part of a group (trust points and folding sections) are skipped {%- endcomment -%}
+        {%- if block_index < skip_until -%}
+          {%- continue -%}
+        {%- endif -%}
+
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+
+          {%- when 'title' -%}
+            <div class="buy__head" {{ block.shopify_attributes }}>
+              <div class="buy__eyebrow">
+                {%- if crumb_collection != blank -%}
+                  <a href="{{ crumb_collection.url }}">{{ crumb_collection.title | escape }}</a>
+                {%- endif -%}
+                <span
+                  class="badge {% if current_variant.available %}badge--green{% else %}badge--red{% endif %}"
+                  data-availability
+                >
+                  <span class="dot"></span>
+                  <span data-availability-text>
+                    {%- if current_variant.available -%}
+                      {{ 'products.product.in_stock' | t }}
+                    {%- else -%}
+                      {{ 'products.product.sold_out' | t }}
+                    {%- endif -%}
+                  </span>
+                </span>
+              </div>
+              <h1 class="t-heading-xl{% if product.title.size > 60 %} is-long{% endif %}">{{ product.title | escape }}</h1>
+              {%- if product.metafields.custom.subtitle.value != blank -%}
+                <p class="muted t-body-l">{{ product.metafields.custom.subtitle.value | escape }}</p>
+              {%- endif -%}
+            </div>
+
+          {%- when 'price' -%}
+            <div class="buy__price" {{ block.shopify_attributes }}>
+              <div class="price-now" data-price>
+                {%- render 'price', product: product, variant: current_variant -%}
+              </div>
+              <small>{% render 'shipping-line' %}</small>
+            </div>
+
+          {%- when 'highlights' -%}
+            {%- assign highlights = product.metafields.custom.highlights.value -%}
+            {%- if highlights.size > 0 -%}
+              <ul class="specs" role="list" {{ block.shopify_attributes }}>
+                {%- for highlight in highlights -%}
+                  <li>
+                    {% render 'icon', name: 'check' %}
+                    <span>{{ highlight | escape }}</span>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+          {%- when 'variant_picker' -%}
+            <div {{ block.shopify_attributes }}>
+              {% render 'product-variant-picker', product: product, section_id: section.id, form_id: product_form_id %}
+            </div>
+
+          {%- when 'buy_buttons' -%}
+            <div class="buyform" {{ block.shopify_attributes }}>
+              {%- form 'product', product, id: product_form_id, class: 'buyform__form', novalidate: 'novalidate', data-product-form: '' -%}
+                <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+                {%- unless product.has_only_default_variant -%}
+                  <noscript>
+                    <div class="field">
+                      <label for="Variants-{{ section.id }}">{{ 'products.product.variant' | t }}</label>
+                      <div class="select-wrap">
+                        <select class="select" id="Variants-{{ section.id }}" name="id">
+                          {%- for variant in product.variants -%}
+                            <option
+                              value="{{ variant.id }}"
+                              {% if variant == current_variant %}
+                                selected
+                              {% endif %}
+                              {% unless variant.available %}
+                                disabled
+                              {% endunless %}
+                            >
+                              {{ variant.title | escape }} – {{ variant.price | money }}
+                            </option>
+                          {%- endfor -%}
+                        </select>
+                        {% render 'icon', name: 'down' %}
+                      </div>
+                    </div>
+                  </noscript>
+                {%- endunless -%}
+
+                <div class="buy__cta" data-buy-cta>
+                  {%- if block.settings.show_quantity -%}
+                    {%- assign quantity_label = 'products.product.quantity.label' | t -%}
+                    {% render 'quantity-input',
+                      id: 'Quantity-main',
+                      label: quantity_label,
+                      value: 1,
+                      min: 1
+                    %}
+                  {%- endif -%}
+                  <button
+                    class="btn btn--primary btn--l"
+                    type="submit"
+                    name="add"
+                    data-add-to-cart
+                    {% unless current_variant.available %}
+                      disabled
+                    {% endunless %}
+                  >
+                    <span data-add-label>
+                      {%- if current_variant.available -%}
+                        {{ 'products.product.add_to_cart' | t }}
+                      {%- else -%}
+                        {{ 'products.product.sold_out' | t }}
+                      {%- endif -%}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="form-msg" data-kind="error" role="alert" data-form-error hidden></div>
+
+                {%- if block.settings.show_dynamic_checkout and product.gift_card? == false -%}
+                  <div class="buy__express" data-express>
+                    {{ form | payment_button }}
+                  </div>
+                {%- endif -%}
+              {%- endform -%}
+            </div>
+
+          {%- when 'delivery_note' -%}
+            <p class="note note--lg" {{ block.shopify_attributes }}>
+              {% render 'icon', name: 'truck' %}
+              <span>{% render 'delivery-note' %}</span>
+            </p>
+
+          {%- when 'trust_item' -%}
+            {%- comment -%} Several trust points in a row share one box {%- endcomment -%}
+            <ul class="trustbox" role="list">
+              {%- for item in section.blocks offset: block_index -%}
+                {%- if item.type != 'trust_item' -%}
+                  {%- break -%}
+                {%- endif -%}
+                {%- assign skip_until = block_index | plus: forloop.index -%}
+                {% render 'product-trust-item', block: item %}
+              {%- endfor -%}
+            </ul>
+
+          {%- when 'accordion' -%}
+            {%- comment -%} Several folding sections in a row share one group {%- endcomment -%}
+            <div class="buy__folds">
+              {%- for item in section.blocks offset: block_index -%}
+                {%- if item.type != 'accordion' -%}
+                  {%- break -%}
+                {%- endif -%}
+                {%- assign skip_until = block_index | plus: forloop.index -%}
+                {% render 'product-accordion',
+                  block: item,
+                  product: product,
+                  delivery_url: delivery_url,
+                  returns_url: returns_url
+                %}
+              {%- endfor -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{%- comment -%} Bar that slides up on phones once the main add to cart button has scrolled away {%- endcomment -%}
+<div class="atc-bar" data-atc-bar role="region" aria-label="{{ 'products.product.add_to_cart' | t }}">
+  <div class="atc-bar__info">
+    <b>{{ product.title | escape }}</b>
+    <span class="tnum">
+      <span data-atc-price>{% render 'price', product: product, variant: current_variant %}</span>
+      {%- unless product.has_only_default_variant -%}
+        {{ ' · ' }}<span data-atc-variant>{{ current_variant.title | escape }}</span>
+      {%- endunless -%}
+    </span>
+  </div>
+  <button
+    class="btn btn--primary"
+    type="submit"
+    form="{{ product_form_id }}"
+    name="add"
+    data-atc-submit
+    {% unless current_variant.available %}
+      disabled
+    {% endunless %}
+  >
+    {%- if current_variant.available -%}
+      {{ 'products.product.add_to_cart' | t }}
+    {%- else -%}
+      {{ 'products.product.sold_out' | t }}
+    {%- endif -%}
+  </button>
+</div>
+
+<script type="application/json" data-product-json>
+  {
+    "id": {{ product.id }},
+    "title": {{ product.title | json }},
+    "selectedVariantId": {{ current_variant.id }},
+    "variants": [
+      {%- for variant in product.variants -%}
+        {%- capture variant_price_html -%}
+          {%- render 'price', product: product, variant: variant -%}
+        {%- endcapture -%}
+        {
+          "id": {{ variant.id }},
+          "title": {{ variant.title | json }},
+          "options": {{ variant.options | json }},
+          "available": {{ variant.available | json }},
+          "mediaId": {{ variant.featured_media.id | default: 'null' }},
+          "priceHtml": {{ variant_price_html | strip | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "Product",
+  "class": "section-product",
+  "tag": "section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "highlights",
+      "name": "Highlights",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows the product metafield custom.highlights (a list of short lines) with check marks."
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Option buttons",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Add to cart",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity",
+          "label": "Show the quantity stepper",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show express checkout buttons",
+          "default": true,
+          "info": "Shop Pay, Apple Pay, Google Pay or \"Buy it now\", depending on Settings > Payments."
+        }
+      ]
+    },
+    {
+      "type": "delivery_note",
+      "name": "Delivery note",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Writes the Christmas deadline and the delivery times from Theme settings > Christmas and delivery."
+        }
+      ]
+    },
+    {
+      "type": "trust_item",
+      "name": "Trust point",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "returns",
+              "label": "Returns"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "shield",
+              "label": "Shield"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "sparkle",
+              "label": "Sparkle"
+            }
+          ],
+          "default": "truck"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Tracked delivery"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Tracking link by email when it ships.",
+          "info": "You can use {date} {short_date} {dispatch} {transit} {returns} {free_shipping} {shipping_fee}."
+        }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Folding section",
+      "settings": [
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Content",
+          "options": [
+            {
+              "value": "description",
+              "label": "Product description"
+            },
+            {
+              "value": "details",
+              "label": "Details table (metafield custom.details)"
+            },
+            {
+              "value": "safety",
+              "label": "Safety and manufacturer (EU safety fields)"
+            },
+            {
+              "value": "shipping",
+              "label": "Shipping and returns"
+            },
+            {
+              "value": "custom",
+              "label": "Custom text"
+            }
+          ],
+          "default": "description"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "info": "Leave empty to use the default heading."
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Text",
+          "info": "Used by \"Shipping and returns\" and \"Custom text\". You can use {date} {short_date} {dispatch} {transit} {returns} {free_shipping} {shipping_fee}."
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

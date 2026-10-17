@@ -1,0 +1,17 @@
+{%- comment -%}
+  One line in the trust box of the product page: an icon, a bold title and a short text.
+  The texts can use the tokens {date} {short_date} {dispatch} {transit} {returns} {free_shipping} {shipping_fee}.
+
+  Accepts:
+  - block: {Object} the "trust_item" block of the product section
+
+  Usage:
+  <ul class="trustbox" role="list">{% render 'product-trust-item', block: block %}</ul>
+{%- endcomment -%}
+<li {{ block.shopify_attributes }}>
+  {% render 'icon', name: block.settings.icon %}
+  <div>
+    <b>{% render 'replace-tokens', text: block.settings.title %}</b>
+    <span>{% render 'replace-tokens', text: block.settings.text %}</span>
+  </div>
+</li>

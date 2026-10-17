@@ -1,0 +1,156 @@
+{%- comment -%}
+  One folding section in the buying column of the product page (native <details>, works without JavaScript).
+  What it shows depends on the block setting "Content": description, details table, safety information, shipping and returns, or custom text.
+  Sections that have nothing to show are left out, so shoppers never see an empty box.
+
+  Accepts:
+  - block: {Object} the "accordion" block of the product section
+  - product: {Object} the product
+  - delivery_url: {String} (optional) link to the delivery page
+  - returns_url: {String} (optional) link to the returns page
+
+  Usage:
+  {% render 'product-accordion', block: block, product: product, delivery_url: delivery_url, returns_url: returns_url %}
+{%- endcomment -%}
+{%- liquid
+  assign fold_type = block.settings.type
+  assign fold_heading = block.settings.heading
+  assign fold_visible = true
+
+  case fold_type
+    when 'description'
+      if fold_heading == blank
+        assign fold_heading = 'products.product.fold.description' | t
+      endif
+      if product.description == blank
+        assign fold_visible = false
+      endif
+    when 'details'
+      if fold_heading == blank
+        assign fold_heading = 'products.product.fold.details' | t
+      endif
+      assign detail_lines = product.metafields.custom.details.value | newline_to_br | split: '<br />'
+      if product.metafields.custom.details.value == blank
+        assign fold_visible = false
+      endif
+    when 'safety'
+      if fold_heading == blank
+        assign fold_heading = 'products.product.fold.safety' | t
+      endif
+      assign gpsr_manufacturer = product.metafields.custom.gpsr_manufacturer.value
+      assign gpsr_responsible = product.metafields.custom.gpsr_responsible_person.value
+      assign gpsr_identifier = product.metafields.custom.gpsr_identifier.value
+      assign gpsr_warnings = product.metafields.custom.gpsr_warnings.value
+      if gpsr_manufacturer == blank and gpsr_responsible == blank and gpsr_identifier == blank and gpsr_warnings == blank
+        assign fold_visible = false
+      endif
+    when 'shipping'
+      if fold_heading == blank
+        assign fold_heading = 'products.product.fold.shipping' | t
+      endif
+    else
+      if block.settings.content == blank
+        assign fold_visible = false
+      endif
+  endcase
+-%}
+
+{%- if fold_visible -%}
+  <details class="acc" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+    <summary>
+      {{- fold_heading | escape -}}
+      {%- render 'icon', name: 'down', class: 'icon--sm' -%}
+    </summary>
+    <div class="acc__body rte">
+      {%- case fold_type -%}
+        {%- when 'description' -%}
+          {{ product.description | replace: '<h1', '<h2' | replace: '</h1>', '</h2>' }}
+
+        {%- when 'details' -%}
+          <div class="table-wrap">
+            <table class="table">
+              <tbody>
+                {%- for line in detail_lines -%}
+                  {%- assign line_clean = line | strip -%}
+                  {%- if line_clean != blank -%}
+                    {%- if line_clean contains ':' -%}
+                      {%- assign detail_key = line_clean | split: ':' | first | strip -%}
+                      {%- assign detail_value = line_clean | remove_first: detail_key | remove_first: ':' | strip -%}
+                      <tr>
+                        <th scope="row">{{ detail_key | escape }}</th>
+                        <td>{{ detail_value | escape }}</td>
+                      </tr>
+                    {%- else -%}
+                      <tr>
+                        <td colspan="2">{{ line_clean | escape }}</td>
+                      </tr>
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              </tbody>
+            </table>
+          </div>
+
+        {%- when 'safety' -%}
+          {%- if gpsr_manufacturer != blank -%}
+            <p><b>{{ 'products.product.safety.manufacturer' | t }}</b> {{ gpsr_manufacturer | escape | newline_to_br }}</p>
+          {%- endif -%}
+          {%- if gpsr_responsible != blank -%}
+            <p><b>{{ 'products.product.safety.responsible' | t }}</b> {{ gpsr_responsible | escape | newline_to_br }}</p>
+          {%- endif -%}
+          {%- if gpsr_identifier != blank -%}
+            <p><b>{{ 'products.product.safety.identifier' | t }}</b> {{ gpsr_identifier | escape }}</p>
+          {%- endif -%}
+          {%- if gpsr_warnings != blank -%}
+            <p><b>{{ 'products.product.safety.warnings' | t }}</b> {{ gpsr_warnings | escape | newline_to_br }}</p>
+          {%- endif -%}
+
+        {%- when 'shipping' -%}
+          {%- if block.settings.content != blank -%}
+            {% render 'replace-tokens', text: block.settings.content, html: true %}
+          {%- endif -%}
+          {%- if delivery_url != blank or returns_url != blank -%}
+            <p>
+              {%- if delivery_url != blank -%}
+                <a href="{{ delivery_url }}">{{ 'products.product.fold.delivery_link' | t }}</a>
+              {%- endif -%}
+              {%- if delivery_url != blank and returns_url != blank -%}
+                {{ ' · ' }}
+              {%- endif -%}
+              {%- if returns_url != blank -%}
+                <a href="{{ returns_url }}">{{ 'products.product.fold.returns_link' | t }}</a>
+              {%- endif -%}
+            </p>
+          {%- endif -%}
+
+        {%- else -%}
+          {{ block.settings.content }}
+      {%- endcase -%}
+    </div>
+  </details>
+{%- elsif request.design_mode and fold_type == 'safety' -%}
+  <p class="callout" {{ block.shopify_attributes }}>
+    {% render 'icon', name: 'alert' %}
+    <span>{{ 'products.product.safety.editor_note' | t }}</span>
+  </p>
+{%- endif -%}
+
+{% stylesheet %}
+  /* Details table: fit the buying column, no sideways scroll */
+  .acc__body .table-wrap {
+    overflow-x: visible;
+  }
+  .acc__body .table {
+    display: table;
+    width: 100%;
+    min-width: 0;
+  }
+  .acc__body .table th {
+    width: 38%;
+    white-space: normal;
+  }
+  .acc__body .table th,
+  .acc__body .table td {
+    overflow-wrap: break-word;
+  }
+{% endstylesheet %}

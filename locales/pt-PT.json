@@ -1,0 +1,271 @@
+{
+  "accessibility": {
+    "skip_to_text": "Saltar para o conteúdo"
+  },
+  "blogs": {
+    "all": "Todos",
+    "back": "Voltar a {{ title }}",
+    "empty_text": "Volte em breve para ideias de presentes e dicas de Natal.",
+    "empty_title": "Ainda não há artigos",
+    "tags_label": "Filtrar por tema"
+  },
+  "cart": {
+    "free_shipping": {
+      "label": "Progresso para portes grátis",
+      "reached": "Tem portes grátis",
+      "remaining": "Faltam {{ amount }} para portes grátis"
+    },
+    "general": {
+      "added": "Adicionado ao carrinho: {{ title }}",
+      "checkout": "Finalizar compra",
+      "continue_shopping": "Continuar a comprar",
+      "empty": "O seu carrinho está vazio",
+      "empty_text": "Adicione alguns favoritos de Natal e eles aparecem aqui.",
+      "error": "Algo correu mal. Tente novamente.",
+      "guest_checkout": "Não precisa de criar conta para comprar.",
+      "link_label": {
+        "one": "Carrinho, {{ count }} artigo",
+        "other": "Carrinho, {{ count }} artigos"
+      },
+      "note": "Nota para a encomenda (opcional)",
+      "price_each": "{{ price }} cada",
+      "quantity_error": "Só há {{ quantity }} em stock. O carrinho foi atualizado.",
+      "quantity_of": "Quantidade de {{ title }}",
+      "remove": "Remover",
+      "remove_named": "Remover {{ title }} do carrinho",
+      "removed": "Removido do carrinho: {{ title }}",
+      "summary": "Resumo da encomenda",
+      "title": "O seu carrinho",
+      "update": "Atualizar carrinho",
+      "updated": "Carrinho atualizado"
+    },
+    "totals": {
+      "estimated_total": "Total estimado",
+      "free": "Grátis",
+      "shipping": "Portes",
+      "subtotal": "Subtotal"
+    }
+  },
+  "christmas": {
+    "date_long": "{{ weekday }}, {{ day }} de {{ month }}",
+    "date_short": "{{ day }} {{ month }}",
+    "months_long": "janeiro,fevereiro,março,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro",
+    "months_short": "jan,fev,mar,abr,mai,jun,jul,ago,set,out,nov,dez",
+    "weekdays": "domingo,segunda-feira,terça-feira,quarta-feira,quinta-feira,sexta-feira,sábado"
+  },
+  "collections": {
+    "all_of": "Tudo em {{ title }}",
+    "clear_all": "Limpar tudo",
+    "clear_filters": "Limpar filtros",
+    "empty_filters": "Nenhum produto corresponde a estes filtros. Experimente remover um.",
+    "empty_text": "Ainda não há produtos nesta coleção.",
+    "empty_title": "Nenhum produto encontrado",
+    "facets": {
+      "show_no_products": "Nenhum produto encontrado",
+      "show_one_product": "Mostrar 1 produto",
+      "show_products": "Mostrar {{ count }} produtos"
+    },
+    "filter_and_sort": "Filtrar e ordenar",
+    "page_of": "Página {{ current }} de {{ total }}",
+    "price_from": "De",
+    "price_to": "Até",
+    "product_count": {
+      "one": "{{ count }} produto",
+      "other": "{{ count }} produtos"
+    },
+    "related": "Coleções relacionadas",
+    "remove_filter": "Remover filtro",
+    "sort": "Ordenar",
+    "sort_by": "Ordenar por"
+  },
+  "delivery": {
+    "deadline_closed": "O prazo de encomendas para o Natal já terminou, por isso as novas encomendas podem chegar depois do Natal.",
+    "deadline_open": "Encomende até {{ date }} para receber antes do Natal.",
+    "parcels": "As encomendas maiores podem chegar em mais do que um volume.",
+    "times": "Enviamos em {{ dispatch }} e a entrega demora {{ transit }}.",
+    "working_days": {
+      "one": "{{ count }} dia útil",
+      "other": "{{ count }} dias úteis"
+    },
+    "working_days_range": "{{ min }} a {{ max }} dias úteis"
+  },
+  "general": {
+    "breadcrumbs": {
+      "home": "Início",
+      "label": "Caminho de navegação"
+    },
+    "close": "Fechar",
+    "localization": {
+      "country": "País ou região",
+      "language": "Idioma",
+      "update": "Atualizar"
+    },
+    "meta": {
+      "page": "Página {{ page }}",
+      "tagged": "Etiqueta: {{ tags }}"
+    },
+    "pagination": {
+      "label": "Paginação",
+      "next": "Seguinte",
+      "page": "Página {{ number }}",
+      "previous": "Anterior"
+    },
+    "payment_methods": "Métodos de pagamento"
+  },
+  "price": {
+    "shipping_at_checkout": "Portes calculados ao finalizar a compra.",
+    "shipping_both": "Portes {{ fee }}, grátis a partir de {{ threshold }}.",
+    "shipping_fee_only": "Portes {{ fee }}.",
+    "shipping_free_only": "Portes grátis a partir de {{ threshold }}.",
+    "tax_excluded": "Impostos calculados ao finalizar a compra.",
+    "vat_included": "IVA incluído."
+  },
+  "products": {
+    "product": {
+      "add_named": "Adicionar {{ title }} ao carrinho",
+      "add_to_cart": "Adicionar ao carrinho",
+      "fold": {
+        "delivery_link": "Informações de entrega",
+        "description": "Descrição",
+        "details": "Detalhes",
+        "returns_link": "Política de devoluções",
+        "safety": "Informações de segurança",
+        "shipping": "Entrega e devoluções"
+      },
+      "gallery_label": "Fotografias do produto",
+      "in_stock": "Em stock",
+      "price": {
+        "from": "A partir de",
+        "regular_price": "Preço normal",
+        "sale_price": "Preço em promoção"
+      },
+      "quantity": {
+        "decrease": "Diminuir quantidade",
+        "increase": "Aumentar quantidade",
+        "label": "Quantidade"
+      },
+      "safety": {
+        "editor_note": "As informações de segurança estão vazias. Preencha os metacampos GPSR do produto para os compradores da UE verem quem fabrica este produto. Esta nota só é visível no editor.",
+        "identifier": "Lote ou modelo:",
+        "manufacturer": "Fabricante:",
+        "responsible": "Pessoa responsável na UE:",
+        "warnings": "Avisos:"
+      },
+      "sale": "Promoção",
+      "show_image": "Mostrar fotografia {{ number }}",
+      "sold_out": "Esgotado",
+      "thumbs_label": "Escolher fotografia",
+      "unavailable": "Esta combinação não está disponível",
+      "variant": "Opção",
+      "variant_unavailable": "Indisponível"
+    }
+  },
+  "search": {
+    "collections": "Coleções",
+    "empty_text": "Experimente um produto, uma divisão da casa ou uma ideia de presente.",
+    "empty_title": "Pesquisar na loja",
+    "no_results_for": "Sem resultados para “{{ terms }}”",
+    "pages_and_articles": "Páginas e artigos",
+    "products": "Produtos",
+    "results_for": {
+      "one": "{{ count }} resultado para “{{ terms }}”",
+      "other": "{{ count }} resultados para “{{ terms }}”"
+    },
+    "see_all": "Ver todos os resultados para “{{ terms }}”",
+    "submit": "Pesquisar",
+    "suggestions": "Sugestões",
+    "title": "Pesquisa",
+    "type_article": "Artigo",
+    "type_page": "Página"
+  },
+  "sections": {
+    "announcement": {
+      "free_shipping": "Portes grátis a partir de {{ amount }}",
+      "label": "Anúncio",
+      "order_by": "Encomende até {{ date }} para receber antes do Natal"
+    },
+    "budget": {
+      "label": "Escolha um orçamento"
+    },
+    "collection_list": {
+      "editor_note": "Escolha uma coleção num dos blocos desta secção para mostrar um mosaico de categoria. Até lá, esta secção fica oculta na loja. Esta nota só é visível no editor."
+    },
+    "contact": {
+      "email": "Email",
+      "message": "Mensagem",
+      "name": "Nome",
+      "phone": "Telefone (opcional)",
+      "send": "Enviar mensagem",
+      "success": "Obrigado, a sua mensagem foi enviada. Respondemos por email assim que possível."
+    },
+    "delivery_band": {
+      "date_label": "Última data para encomendar",
+      "editor_note": "Esta faixa está oculta na loja porque as mensagens de Natal estão desligadas ou a data limite já passou. Verifique Definições do tema > Natal e entrega. Esta nota só é visível no editor."
+    },
+    "email_signup": {
+      "label": "Endereço de email",
+      "placeholder": "nome@exemplo.pt",
+      "success": "Obrigado por subscrever!"
+    },
+    "featured_collection": {
+      "editor_note": "Escolha uma coleção nas definições desta secção para mostrar produtos aqui. Esta nota só é visível no editor."
+    },
+    "header": {
+      "account": "Conta",
+      "all_of": "Tudo em {{ title }}",
+      "close_search": "Fechar pesquisa",
+      "main_nav": "Navegação principal",
+      "menu": "Menu",
+      "mobile_nav": "Navegação móvel",
+      "open_menu": "Abrir menu",
+      "popular_searches": "Pesquisas populares",
+      "search": "Pesquisar",
+      "search_label": "Pesquisar na loja",
+      "search_placeholder": "Pesquisar luzes, bolas, presentes…"
+    },
+    "hero": {
+      "art_alt": "Ilustração de Natal com luzes, bolas e presentes",
+      "art_alt_cosy": "Pilha de mantas de xadrez com uma almofada por cima",
+      "art_alt_decorations": "Bolas de Natal vermelhas, douradas e verdes penduradas em fios finos",
+      "art_alt_gifts": "Pilha de presentes de Natal embrulhados com fitas",
+      "art_alt_lights": "Fios de luzes quentes a brilhar no escuro",
+      "art_alt_table": "Velas cor de creme acesas numa mesa, com ramos de azevinho",
+      "carousel": "carrossel",
+      "carousel_label": "Destaques da loja",
+      "controls_label": "Controlos dos slides",
+      "editor_note": "Este destaque ainda não tem slides. Adicione um slide para o mostrar na página inicial.",
+      "go_to": "Ir para o slide {{ number }}",
+      "next": "Slide seguinte",
+      "pause": "Pausar a rotação dos slides",
+      "picker_label": "Escolher um slide",
+      "play": "Iniciar a rotação dos slides",
+      "previous": "Slide anterior",
+      "shop_the_look": "Comprar o conjunto",
+      "slide": "slide",
+      "slide_label": "{{ number }} de {{ total }}",
+      "trust_label": "Porque comprar aqui",
+      "view_named": "Ver {{ title }}"
+    },
+    "list_collections": {
+      "empty_text": "Entretanto, veja tudo o que há na loja.",
+      "empty_title": "Ainda não há coleções",
+      "title": "Coleções"
+    },
+    "not_found": {
+      "categories": "Categorias populares",
+      "home": "Voltar à loja",
+      "text": "A página que procura mudou de sítio ou não existe. Experimente uma pesquisa ou escolha uma categoria.",
+      "title": "Página não encontrada"
+    },
+    "password": {
+      "enter": "Entrar com palavra-passe",
+      "label": "Palavra-passe",
+      "owner": "É o proprietário da loja?",
+      "owner_link": "Inicie sessão aqui",
+      "submit": "Entrar"
+    },
+    "reviews": {
+      "editor_note": "Nenhuma app de avaliações está ligada. Adicione aqui um bloco de app para mostrar avaliações reais de clientes. Esta nota só é visível no editor."
+    }
+  }
+}

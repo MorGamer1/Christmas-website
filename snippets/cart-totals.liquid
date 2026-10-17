@@ -1,0 +1,70 @@
+{%- comment -%}
+  Cart totals: subtotal, discounts, shipping and the estimated total.
+  Shipping is an estimate taken from Theme settings > Christmas and delivery ("Standard shipping fee" and "Free shipping from"),
+  so it only matches checkout when your real shipping rates are set the same way. The total is called "estimated" for that reason.
+  When there is no fee or threshold, or the customer sees another currency, the shipping row is left out and the small print says
+  that shipping is calculated at checkout.
+
+  Usage:
+  {% render 'cart-totals' %}
+{%- endcomment -%}
+{%- liquid
+  assign shipping_state = 'unknown'
+  assign shipping_cents = 0
+  if cart.requires_shipping == false
+    assign shipping_state = 'none'
+  elsif cart.currency.iso_code == shop.currency
+    assign threshold_cents = 0
+    if settings.free_shipping_threshold > 0
+      assign threshold_cents = settings.free_shipping_threshold | times: 100 | round
+    endif
+    if threshold_cents > 0 and cart.total_price >= threshold_cents
+      assign shipping_state = 'free'
+    elsif settings.shipping_fee > 0
+      assign shipping_state = 'fee'
+      assign shipping_cents = settings.shipping_fee | times: 100 | round
+    endif
+  endif
+  assign estimated_total = cart.total_price | plus: shipping_cents
+-%}
+<div class="totals">
+  <div>
+    <span>{{ 'cart.totals.subtotal' | t }}</span>
+    <span class="tnum">{{ cart.items_subtotal_price | money }}</span>
+  </div>
+
+  {%- for discount in cart.cart_level_discount_applications -%}
+    <div class="totals__discount">
+      <span>{{ discount.title | escape }}</span>
+      <span class="tnum">−{{ discount.total_allocated_amount | money }}</span>
+    </div>
+  {%- endfor -%}
+
+  {%- if shipping_state == 'free' -%}
+    <div>
+      <span>{{ 'cart.totals.shipping' | t }}</span>
+      <span>{{ 'cart.totals.free' | t }}</span>
+    </div>
+  {%- elsif shipping_state == 'fee' -%}
+    <div>
+      <span>{{ 'cart.totals.shipping' | t }}</span>
+      <span class="tnum">{{ shipping_cents | money }}</span>
+    </div>
+  {%- endif -%}
+
+  <div class="total">
+    <span>{{ 'cart.totals.estimated_total' | t }}</span>
+    <span class="tnum">{{ estimated_total | money }}</span>
+  </div>
+
+  <small>
+    {%- if shop.taxes_included -%}
+      {{ 'price.vat_included' | t }}
+    {%- else -%}
+      {{ 'price.tax_excluded' | t }}
+    {%- endif -%}
+    {%- if shipping_state == 'unknown' -%}
+      {{ ' ' }}{{ 'price.shipping_at_checkout' | t }}
+    {%- endif -%}
+  </small>
+</div>

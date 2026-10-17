@@ -1,0 +1,41 @@
+{%- comment -%}
+  The theme's own picture for a collection, used when the collection has no image of its own.
+  Pictures exist for the handles lights, decorations, table, gifts and cosy (and their sub-collections, such as led-candles).
+  Any other handle gets a neutral placeholder. Replace the files art-*.svg in the theme assets if you want other pictures.
+
+  Accepts:
+  - handle: {String} the collection handle
+  - class: {String} (optional) css class for the image
+  - loading: {String} (optional) 'lazy' (default) or 'eager'
+
+  Usage:
+  {% render 'collection-art', handle: collection.handle, class: 'tile__img' %}
+{%- endcomment -%}
+{%- liquid
+  assign art_width = 320
+  assign art_height = 400
+  case handle
+    when 'lights', 'fairy-lights', 'icicle-lights', 'festoon-lights'
+      assign art_file = 'art-lights.svg'
+      assign art_width = 640
+      assign art_height = 640
+    when 'decorations', 'all'
+      assign art_file = 'art-decorations.svg'
+    when 'table', 'led-candles'
+      assign art_file = 'art-table.svg'
+    when 'gifts', 'under-10', 'under-15', 'under-20'
+      assign art_file = 'art-gifts.svg'
+    when 'cosy'
+      assign art_file = 'art-cosy.svg'
+    else
+      assign art_file = 'art-placeholder.svg'
+  endcase
+-%}
+<img
+  src="{{ art_file | asset_url }}"
+  alt=""
+  width="{{ art_width }}"
+  height="{{ art_height }}"
+  loading="{{ loading | default: 'lazy' }}"
+  {% if class != blank %}class="{{ class }}"{% endif %}
+>

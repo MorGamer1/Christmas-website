@@ -1,0 +1,27 @@
+{%- comment -%}
+  Prints the dispatch time or the time in transit as words, in the language of the page: "2 working days", "6 to 9 working days".
+  The numbers come from Theme settings > Christmas and delivery, so every language gets its own words.
+  Prints nothing when the numbers are not set.
+
+  Accepts:
+  - kind: {String} 'dispatch' or 'transit'
+
+  Usage (a snippet cannot return a value, so capture what it prints):
+  {% capture dispatch_text %}{% render 'delivery-time', kind: 'dispatch' %}{% endcapture %}
+{%- endcomment -%}
+{%- liquid
+  if kind == 'transit'
+    assign days_from = settings.transit_days_min | default: 0
+    assign days_to = settings.transit_days_max | default: 0
+    if days_to < days_from
+      assign days_to = days_from
+    endif
+    if days_from > 0 and days_from == days_to
+      echo 'delivery.working_days' | t: count: days_from
+    elsif days_from > 0
+      echo 'delivery.working_days_range' | t: min: days_from, max: days_to
+    endif
+  elsif settings.dispatch_days > 0
+    echo 'delivery.working_days' | t: count: settings.dispatch_days
+  endif
+-%}

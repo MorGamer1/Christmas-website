@@ -1,0 +1,413 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Firside",
+    "theme_author": "Firside",
+    "theme_version": "1.0.4",
+    "theme_documentation_url": "https://help.shopify.com/en/manual/online-store/themes/customizing-themes",
+    "theme_support_url": "https://help.shopify.com/en/manual/online-store/themes"
+  },
+  {
+    "name": "Logo and favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo image",
+        "info": "Optional. Leave empty to show your store name in the theme font, with a small star."
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Logo image width",
+        "min": 60,
+        "max": 240,
+        "step": 4,
+        "unit": "px",
+        "default": 120
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Square image, at least 32 x 32 px."
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Each section picks one colour scheme. Dark schemes use a white button, because red text and buttons on dark green do not pass the contrast rules."
+      },
+      {
+        "type": "color_scheme_group",
+        "id": "color_schemes",
+        "definition": [
+          {
+            "type": "header",
+            "content": "Surfaces"
+          },
+          {
+            "type": "color",
+            "id": "background",
+            "label": "Background",
+            "default": "#F6F8F5"
+          },
+          {
+            "type": "color",
+            "id": "surface",
+            "label": "Panels and inactive areas",
+            "default": "#EAF0EC"
+          },
+          {
+            "type": "color",
+            "id": "raised",
+            "label": "Cards and form fields",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "id": "border",
+            "label": "Dividers",
+            "default": "#D5E0D9"
+          },
+          {
+            "type": "color",
+            "id": "border_strong",
+            "label": "Form field and chip outlines",
+            "default": "#76847C"
+          },
+          {
+            "type": "header",
+            "content": "Text and icons"
+          },
+          {
+            "type": "color",
+            "id": "text",
+            "label": "Text",
+            "default": "#0F2E22"
+          },
+          {
+            "type": "color",
+            "id": "text_muted",
+            "label": "Secondary text",
+            "default": "#52625A"
+          },
+          {
+            "type": "color",
+            "id": "icon",
+            "label": "Icons",
+            "default": "#2A6B52"
+          },
+          {
+            "type": "color",
+            "id": "accent",
+            "label": "Accent for small marks",
+            "default": "#9C7416"
+          },
+          {
+            "type": "header",
+            "content": "Buttons"
+          },
+          {
+            "type": "color",
+            "id": "button",
+            "label": "Main button",
+            "default": "#B3122B"
+          },
+          {
+            "type": "color",
+            "id": "button_label",
+            "label": "Main button text",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "id": "button_hover",
+            "label": "Main button on hover",
+            "default": "#97102A"
+          },
+          {
+            "type": "color",
+            "id": "focus",
+            "label": "Keyboard focus ring",
+            "default": "#1E5440"
+          }
+        ],
+        "role": {
+          "text": "text",
+          "background": "background",
+          "links": "text",
+          "icons": "icon",
+          "primary_button": "button",
+          "on_primary_button": "button_label",
+          "primary_button_border": "button",
+          "secondary_button": "background",
+          "on_secondary_button": "text",
+          "secondary_button_border": "text"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Headings use Bricolage Grotesque and text uses Geist. Both fonts come with the theme (open licence, nothing is loaded from another website). Turn on the option below to use fonts from the Shopify font library instead."
+      },
+      {
+        "type": "checkbox",
+        "id": "use_custom_fonts",
+        "label": "Use fonts from the Shopify font library",
+        "default": false
+      },
+      {
+        "type": "font_picker",
+        "id": "custom_heading_font",
+        "label": "Heading font",
+        "default": "assistant_n7"
+      },
+      {
+        "type": "font_picker",
+        "id": "custom_body_font",
+        "label": "Body font",
+        "default": "assistant_n4"
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "label": "Page width",
+        "min": 1000,
+        "max": 1440,
+        "step": 8,
+        "unit": "px",
+        "default": 1184
+      }
+    ]
+  },
+  {
+    "name": "Christmas and delivery",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "These values feed the announcement bar, the hero, the delivery section, product pages and the cart, so you only change them here. Use real supplier lead times plus a safety margin."
+      },
+      {
+        "type": "checkbox",
+        "id": "christmas_enabled",
+        "label": "Show Christmas delivery messages",
+        "default": true,
+        "info": "Turn this off after the season to hide every Christmas deadline across the shop."
+      },
+      {
+        "type": "text",
+        "id": "christmas_cutoff_date",
+        "label": "Last order date for Christmas delivery",
+        "default": "2026-12-08",
+        "info": "Write it as year-month-day, for example 2026-12-08. The day after this date the shop stops promising Christmas delivery and says orders may arrive late."
+      },
+      {
+        "type": "range",
+        "id": "dispatch_days",
+        "label": "Dispatch time (working days)",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "default": 2,
+        "info": "How long you need to send the order to the carrier."
+      },
+      {
+        "type": "range",
+        "id": "transit_days_min",
+        "label": "Time in transit, from (working days)",
+        "min": 1,
+        "max": 30,
+        "step": 1,
+        "default": 6,
+        "info": "How long the carrier needs, at the quickest."
+      },
+      {
+        "type": "range",
+        "id": "transit_days_max",
+        "label": "Time in transit, up to (working days)",
+        "min": 1,
+        "max": 30,
+        "step": 1,
+        "default": 9,
+        "info": "At the slowest. If both numbers are the same, the shop writes just one number. The words (\"working days\") follow the language of the page."
+      },
+      {
+        "type": "number",
+        "id": "shipping_fee",
+        "label": "Standard shipping fee",
+        "default": 3.9,
+        "info": "Shown as a message only. Set the real rates in Settings, Shipping and delivery. Leave empty to hide the fee."
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping from",
+        "default": 45,
+        "info": "In your store currency. Also drives the progress bar in the cart. Leave empty if you do not offer free shipping. Make the real rate match."
+      },
+      {
+        "type": "number",
+        "id": "returns_days",
+        "label": "Return period in days",
+        "default": 14,
+        "info": "Customers in the EU have at least 14 days to withdraw from a distance purchase. Leave empty to hide return messages."
+      },
+      {
+        "type": "page",
+        "id": "delivery_page",
+        "label": "Delivery page",
+        "info": "Linked from the announcement bar, hero and product pages. If empty, the theme uses your Shipping policy."
+      },
+      {
+        "type": "page",
+        "id": "returns_page",
+        "label": "Returns page",
+        "info": "If empty, the theme uses your Refund policy."
+      },
+      {
+        "type": "text",
+        "id": "support_email",
+        "label": "Support email",
+        "info": "Shown in the questions section and the footer. If empty, the store email is used."
+      }
+    ]
+  },
+  {
+    "name": "Product cards",
+    "settings": [
+      {
+        "type": "select",
+        "id": "media_ratio",
+        "label": "Photo shape",
+        "options": [
+          {
+            "value": "portrait",
+            "label": "Portrait (4:5)"
+          },
+          {
+            "value": "square",
+            "label": "Square (1:1)"
+          },
+          {
+            "value": "landscape",
+            "label": "Landscape (4:3)"
+          }
+        ],
+        "default": "portrait",
+        "info": "Used for product cards and the product gallery. Supplier photos are often square: choose Square for those."
+      },
+      {
+        "type": "checkbox",
+        "id": "card_quick_add",
+        "label": "Show the quick add (+) button",
+        "default": true,
+        "info": "Only on products that have a single variant."
+      },
+      {
+        "type": "checkbox",
+        "id": "card_secondary_image",
+        "label": "Show the second photo on hover",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_vendor",
+        "label": "Show the vendor",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "show_compare_at_price",
+        "label": "Show compare-at prices and sale badges",
+        "default": false,
+        "info": "Off by default. In the EU, a price reduction has to be shown against the lowest price of the previous 30 days. Turn this on only if your compare-at prices follow that rule."
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Cart type",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Drawer"
+          },
+          {
+            "value": "page",
+            "label": "Page"
+          }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_note",
+        "label": "Allow a note on the cart page",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "Search",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "predictive_search_enabled",
+        "label": "Show suggestions while typing",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "url",
+        "id": "social_instagram_link",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook_link",
+        "label": "Facebook"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok_link",
+        "label": "TikTok"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest_link",
+        "label": "Pinterest"
+      },
+      {
+        "type": "url",
+        "id": "social_youtube_link",
+        "label": "YouTube"
+      },
+      {
+        "type": "url",
+        "id": "social_x_link",
+        "label": "X"
+      }
+    ]
+  }
+]

@@ -1,0 +1,727 @@
+{%- comment -%}
+  Home page hero: a slideshow. Every slide has its own headline, text, buttons and picture.
+  The frame around them never moves: the text sits on the left, the picture on the right and the trust points stay under
+  the text. Only the contents change, with a soft fade. Previous / next arrows and one dot per slide sit in one row,
+  centred under the whole hero.
+
+  With one slide it is a plain hero. With two or more, there is also a pause button for keyboard and screen reader visitors
+  (hidden until it has keyboard focus; the WAI-ARIA carousel pattern and WCAG 2.2.2 ask for one). The first slide holds
+  the page's h1 and its picture loads first. The slides wait while a mouse is over the text and buttons (not over the
+  arrows, dots or picture) and while the hero is off screen, and then carry on from the same point. They stop when
+  keyboard focus enters the hero, and never start for visitors who asked their device for less motion. Using an arrow
+  or a dot, or swiping, does not stop them (see assets/theme.js, "Hero slideshow").
+
+  The wording that mentions the order deadline changes by itself after the last order date
+  (see Theme settings > Christmas and delivery).
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  capture season
+    render 'christmas-state'
+  endcapture
+
+  capture delivery_url
+    render 'policy-url', kind: 'delivery'
+  endcapture
+
+  assign slide_total = 0
+  for block in section.blocks
+    if block.type == 'slide'
+      assign slide_total = slide_total | plus: 1
+    endif
+  endfor
+
+  assign multi = false
+  assign autoplay = false
+  if slide_total > 1
+    assign multi = true
+    if section.settings.autoplay
+      assign autoplay = true
+    endif
+  endif
+  assign interval = section.settings.autoplay_seconds | default: 7
+-%}
+
+{%- if slide_total == 0 -%}
+  {%- if request.design_mode -%}
+    <section class="hero color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding">
+      <div class="container">
+        <p class="callout">
+          {% render 'icon', name: 'info' %}
+          <span>{{ 'sections.hero.editor_note' | t }}</span>
+        </p>
+      </div>
+    </section>
+  {%- endif -%}
+{%- else -%}
+  <section
+    class="hero color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+    {%- if multi %}
+    aria-roledescription="{{ 'sections.hero.carousel' | t }}"
+    aria-label="{{ 'sections.hero.carousel_label' | t }}"
+    data-hero
+    data-autoplay="{{ autoplay }}"
+    data-interval="{{ interval }}"
+    style="--hero-interval: {{ interval }}s"
+    {%- else %}
+    aria-labelledby="Hero-{{ section.id }}"
+    {%- endif %}
+  >
+    <div class="container hero__grid">
+      {%- if autoplay -%}
+        {%- comment -%}
+          The pause button is first in the page order, so a keyboard or screen reader visitor can stop the rotation
+          before reaching the slides. Nobody else needs to see it: it stays hidden until it gets keyboard focus
+          (see .hero__toggle in theme-pages.css). Tabbing into the hero stops the slides by itself, and this button
+          starts them again.
+        {%- endcomment -%}
+        <button
+          class="hero__toggle"
+          type="button"
+          data-hero-toggle
+          data-label-pause="{{ 'sections.hero.pause' | t }}"
+          data-label-play="{{ 'sections.hero.play' | t }}"
+          aria-controls="HeroSlides-{{ section.id }}"
+          aria-label="{{ 'sections.hero.pause' | t }}"
+        >
+          {% render 'icon', name: 'pause', class: 'icon--sm hero__icon-pause' %}
+          {% render 'icon', name: 'play', class: 'icon--sm hero__icon-play' %}
+          <span data-hero-toggle-text aria-hidden="true">{{ 'sections.hero.pause' | t }}</span>
+        </button>
+      {%- endif -%}
+
+      <div class="hero__copy">
+        <div
+          class="hero__stack"
+          id="HeroSlides-{{ section.id }}"
+          data-hero-slides
+          {%- if multi %} aria-live="{% if autoplay %}off{% else %}polite{% endif %}"{% endif %}
+        >
+          {%- assign slide_number = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'slide' -%}
+              {%- liquid
+                assign slide_number = slide_number | plus: 1
+
+                assign heading_tag = 'h2'
+                if slide_number == 1
+                  assign heading_tag = 'h1'
+                endif
+
+                assign badge = block.settings.badge_text
+                assign show_badge = false
+                if badge != blank
+                  capture badge_ready
+                    render 'tokens-ready', text: badge, season: season
+                  endcapture
+                  if badge_ready == 'yes'
+                    assign show_badge = true
+                  endif
+                endif
+
+                assign slide_text = block.settings.text
+                if season == 'closed' and block.settings.text_after_deadline != blank
+                  assign slide_text = block.settings.text_after_deadline
+                endif
+                if slide_text != blank
+                  capture text_ready
+                    render 'tokens-ready', text: slide_text, season: season
+                  endcapture
+                  unless text_ready == 'yes'
+                    assign slide_text = ''
+                  endunless
+                endif
+
+                assign has_button = false
+                if block.settings.button_label != blank and block.settings.button_link != blank
+                  assign has_button = true
+                endif
+
+                assign link_url = block.settings.link_url
+                if link_url == blank
+                  assign link_url = delivery_url
+                endif
+                assign has_link = false
+                if block.settings.link_label != blank and link_url != blank
+                  assign has_link = true
+                endif
+              -%}
+              <div
+                class="hero__text{% if slide_number == 1 %} is-active{% endif %}"
+                data-hero-slide
+                {%- if multi %}
+                role="group"
+                aria-roledescription="{{ 'sections.hero.slide' | t }}"
+                aria-label="{{ 'sections.hero.slide_label' | t: number: slide_number, total: slide_total }}"
+                {%- endif %}
+                {{ block.shopify_attributes }}
+              >
+                {%- if show_badge -%}
+                  <span class="badge badge--gold hero__badge">
+                    {%- if block.settings.badge_icon != 'none' -%}
+                      {% render 'icon', name: block.settings.badge_icon, class: 'icon--xs' %}
+                    {%- endif -%}
+                    {% render 'replace-tokens', text: badge %}
+                  </span>
+                {%- endif -%}
+
+                {%- if block.settings.heading != blank -%}
+                  <{{ heading_tag }} class="t-display-xl hero__title"{% if slide_number == 1 %} id="Hero-{{ section.id }}"{% endif %}>{{ block.settings.heading | escape }}</{{ heading_tag }}>
+                {%- endif -%}
+
+                {%- if slide_text != blank -%}
+                  <p class="t-body-l lead hero__lead">{% render 'replace-tokens', text: slide_text %}</p>
+                {%- endif -%}
+
+                {%- if has_button or has_link -%}
+                  <div class="hero__cta">
+                    {%- if has_button -%}
+                      <a class="btn btn--primary btn--l" href="{{ block.settings.button_link }}">
+                        {{- block.settings.button_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                    {%- if has_link -%}
+                      <a class="link-arrow" href="{{ link_url }}">
+                        <span class="u">{{ block.settings.link_label | escape }}</span>
+                        {% render 'icon', name: 'arrow', class: 'icon--sm' %}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- assign trust_total = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'trust' -%}
+            {%- assign trust_total = trust_total | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if trust_total > 0 -%}
+          <ul class="trust" role="list" aria-label="{{ 'sections.hero.trust_label' | t }}">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'trust' and block.settings.text != blank -%}
+                {%- capture trust_ready -%}
+                  {%- render 'tokens-ready', text: block.settings.text, season: season -%}
+                {%- endcapture -%}
+                {%- if trust_ready == 'yes' -%}
+                  <li {{ block.shopify_attributes }}>
+                    {% render 'icon', name: block.settings.icon %}
+                    {% render 'replace-tokens', text: block.settings.text %}
+                  </li>
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+
+      <div class="hero__panel">
+        {%- assign pic_number = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'slide' -%}
+            {%- liquid
+              assign pic_number = pic_number | plus: 1
+              assign pic_loading = 'lazy'
+              assign pic_priority = 'low'
+              if pic_number == 1
+                assign pic_loading = 'eager'
+                assign pic_priority = 'high'
+              endif
+
+              assign art_file = 'art-hero.svg'
+              assign art_width = 700
+              assign art_height = 700
+              assign art_alt = 'sections.hero.art_alt' | t
+              case block.settings.art
+                when 'lights'
+                  assign art_file = 'art-lights.svg'
+                  assign art_width = 640
+                  assign art_height = 640
+                  assign art_alt = 'sections.hero.art_alt_lights' | t
+                when 'decorations'
+                  assign art_file = 'art-slide-decorations.svg'
+                  assign art_width = 700
+                  assign art_height = 600
+                  assign art_alt = 'sections.hero.art_alt_decorations' | t
+                when 'table'
+                  assign art_file = 'art-slide-table.svg'
+                  assign art_width = 700
+                  assign art_height = 600
+                  assign art_alt = 'sections.hero.art_alt_table' | t
+                when 'gifts'
+                  assign art_file = 'art-slide-gifts.svg'
+                  assign art_width = 700
+                  assign art_height = 600
+                  assign art_alt = 'sections.hero.art_alt_gifts' | t
+                when 'cosy'
+                  assign art_file = 'art-slide-cosy.svg'
+                  assign art_width = 700
+                  assign art_height = 600
+                  assign art_alt = 'sections.hero.art_alt_cosy' | t
+              endcase
+
+              assign look = block.settings.look_product
+              assign look_single = false
+              if look.variants.size == 1
+                assign look_single = true
+              endif
+            -%}
+            <div class="hero__pic{% if pic_number == 1 %} is-active{% endif %}" data-hero-pic>
+              {%- if block.settings.image != blank -%}
+                {%- liquid
+                  assign focal = block.settings.image.presentation.focal_point | default: '50% 50%'
+                  assign pic_style = 'object-position: ' | append: focal
+                -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 1400
+                  | image_tag:
+                    class: 'hero__img',
+                    loading: pic_loading,
+                    fetchpriority: pic_priority,
+                    sizes: '(min-width: 1280px) 680px, (min-width: 1024px) 58vw, 100vw',
+                    widths: '480, 720, 960, 1200, 1400',
+                    alt: block.settings.image.alt,
+                    style: pic_style
+                }}
+              {%- else -%}
+                <img
+                  class="hero__img"
+                  src="{{ art_file | asset_url }}"
+                  alt="{{ art_alt }}"
+                  width="{{ art_width }}"
+                  height="{{ art_height }}"
+                  loading="{{ pic_loading }}"
+                  fetchpriority="{{ pic_priority }}"
+                >
+              {%- endif -%}
+
+              {%- if look != blank -%}
+                <div class="look">
+                  <span class="look__thumb">
+                    {%- if look.featured_media != blank -%}
+                      {{
+                        look.featured_media
+                        | image_url: width: 160
+                        | image_tag: class: 'look__img', loading: 'lazy', widths: '52, 104, 160', sizes: '52px', alt: ''
+                      }}
+                    {%- endif -%}
+                  </span>
+                  <a class="look__body" href="{{ look.url }}">
+                    <span class="look__eyebrow">{{ 'sections.hero.shop_the_look' | t }}</span>
+                    <span class="look__name">{{ look.title | escape }}</span>
+                    <span class="look__price">{% render 'price', product: look %}</span>
+                  </a>
+                  {%- if look_single and look.available -%}
+                    {%- form 'product', look, class: 'look__form', data-quick-add: '' -%}
+                      <input type="hidden" name="id" value="{{ look.selected_or_first_available_variant.id }}">
+                      <button
+                        class="look__add"
+                        type="submit"
+                        aria-label="{{ 'products.product.add_named' | t: title: look.title }}"
+                      >
+                        {% render 'icon', name: 'plus' %}
+                      </button>
+                    {%- endform -%}
+                  {%- else -%}
+                    <a class="look__add" href="{{ look.url }}" aria-label="{{ 'sections.hero.view_named' | t: title: look.title }}">
+                      {% render 'icon', name: 'arrow' %}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if multi -%}
+        {%- comment -%}
+          Previous, one dot per slide and next, in one row under the whole hero, centred (see .hero__controls in theme-pages.css).
+        {%- endcomment -%}
+        <div class="hero__controls" role="group" aria-label="{{ 'sections.hero.controls_label' | t }}" data-hero-controls>
+          <button
+            class="hero__ctl"
+            type="button"
+            data-hero-prev
+            aria-controls="HeroSlides-{{ section.id }}"
+            aria-label="{{ 'sections.hero.previous' | t }}"
+          >
+            {% render 'icon', name: 'left', class: 'icon--sm' %}
+          </button>
+          <div class="hero__dots" role="group" aria-label="{{ 'sections.hero.picker_label' | t }}">
+            {%- assign dot_number = 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'slide' -%}
+                {%- assign dot_number = dot_number | plus: 1 -%}
+                <button
+                  class="hero__dot"
+                  type="button"
+                  data-hero-dot="{{ dot_number | minus: 1 }}"
+                  aria-controls="HeroSlides-{{ section.id }}"
+                  aria-label="{{ 'sections.hero.go_to' | t: number: dot_number }}"
+                  {%- if dot_number == 1 %} aria-current="true"{% endif %}
+                ></button>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+          <button
+            class="hero__ctl"
+            type="button"
+            data-hero-next
+            aria-controls="HeroSlides-{{ section.id }}"
+            aria-label="{{ 'sections.hero.next' | t }}"
+          >
+            {% render 'icon', name: 'right', class: 'icon--sm' %}
+          </button>
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Hero slideshow",
+  "tag": "section",
+  "class": "section-hero",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Slideshow"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Change slides automatically",
+      "default": true,
+      "info": "Needs two or more slides. Waits while a visitor points at the text or buttons, and never starts for visitors who asked their device for less motion. Keyboard visitors get a pause button."
+    },
+    {
+      "type": "range",
+      "id": "autoplay_seconds",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "label": "Time per slide",
+      "default": 7,
+      "info": "Give people time to read: 6 to 8 seconds suits a headline, a sentence and a button."
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Headline",
+          "default": "Christmas, sorted.",
+          "info": "The first slide holds the page's main headline. Keep headlines about the same length so the layout stays still."
+        },
+        {
+          "type": "header",
+          "content": "Badge"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge",
+          "info": "Small label above the headline. Leave empty for none. Tokens like {date} and {returns} come from Theme settings. A badge with a missing value, or a date that has passed, is hidden."
+        },
+        {
+          "type": "select",
+          "id": "badge_icon",
+          "label": "Badge icon",
+          "options": [
+            {
+              "value": "none",
+              "label": "No icon"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "returns",
+              "label": "Returns"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "shield",
+              "label": "Shield"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "sparkle",
+              "label": "Sparkle"
+            }
+          ],
+          "default": "calendar"
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Lights, decorations and gifts at fair prices. Order by {date} and it arrives before the 24th.",
+          "info": "The same {tokens} as in the badge work here. A text that needs a value you have not set is hidden."
+        },
+        {
+          "type": "textarea",
+          "id": "text_after_deadline",
+          "label": "Text after the last order date",
+          "info": "Optional. Used instead of the text above once the last order date has passed."
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button text",
+          "default": "Shop Christmas"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link",
+          "default": "/collections/all"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link text",
+          "info": "The quiet link next to the button. Leave empty for no link."
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link address",
+          "info": "Leave empty to link to your delivery page."
+        },
+        {
+          "type": "header",
+          "content": "Picture"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Optional. Shown wide on desktop and close to square on phones, so keep the subject in the middle. Without it the illustration below is shown."
+        },
+        {
+          "type": "select",
+          "id": "art",
+          "label": "Illustration",
+          "options": [
+            {
+              "value": "hero",
+              "label": "Christmas room"
+            },
+            {
+              "value": "lights",
+              "label": "Fairy lights"
+            },
+            {
+              "value": "decorations",
+              "label": "Baubles"
+            },
+            {
+              "value": "table",
+              "label": "Candles"
+            },
+            {
+              "value": "gifts",
+              "label": "Gifts"
+            },
+            {
+              "value": "cosy",
+              "label": "Cosy blankets"
+            }
+          ],
+          "default": "hero",
+          "info": "Shown when no image is chosen above."
+        },
+        {
+          "type": "product",
+          "id": "look_product",
+          "label": "Shop the look product",
+          "info": "Optional. Shows a small card over the picture with a button to add the product."
+        }
+      ]
+    },
+    {
+      "type": "trust",
+      "name": "Trust point",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "returns",
+              "label": "Returns"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "shield",
+              "label": "Shield"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "sparkle",
+              "label": "Sparkle"
+            }
+          ],
+          "default": "truck"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Tracked delivery",
+          "info": "Shown under every slide."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero slideshow",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Christmas, sorted.",
+            "badge_text": "Last order date: {date}",
+            "badge_icon": "calendar",
+            "text": "Lights, decorations and gifts at fair prices. Order by {date} and it arrives before the 24th.",
+            "text_after_deadline": "Lights, decorations and gifts at fair prices. Orders placed now may arrive after Christmas.",
+            "button_label": "Shop Christmas",
+            "link_label": "See delivery dates",
+            "art": "hero"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Warm light, all season.",
+            "badge_text": "Free shipping over {free_shipping}",
+            "badge_icon": "truck",
+            "text": "Fairy, icicle and festoon lights for the tree, the window, the mantel and the front door.",
+            "button_label": "Shop lights",
+            "art": "lights"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Gifts for everyone.",
+            "badge_text": "Dispatched in {dispatch}",
+            "badge_icon": "check",
+            "text": "Stocking fillers, thoughtful extras and bigger presents, sorted by what you want to spend.",
+            "button_label": "Shop gifts",
+            "art": "gifts"
+          }
+        },
+        {
+          "type": "trust",
+          "settings": {
+            "icon": "truck",
+            "text": "Tracked delivery"
+          }
+        },
+        {
+          "type": "trust",
+          "settings": {
+            "icon": "returns",
+            "text": "{returns}-day returns"
+          }
+        },
+        {
+          "type": "trust",
+          "settings": {
+            "icon": "lock",
+            "text": "Secure checkout"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

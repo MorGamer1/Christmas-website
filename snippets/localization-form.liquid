@@ -1,0 +1,89 @@
+{%- comment -%}
+  Language and country selectors. Each one is its own form with a plain <select> (the Shopify way: one form per choice).
+  Picking an option sends the form (theme.js does that; the button inside <noscript> covers shoppers without JavaScript).
+  A selector shows only when the shop has more than one language, or more than one country (Settings > Languages and Markets).
+
+  Accepts:
+  - id: {String} a unique id for this pair of forms
+  - show_language: {Boolean} (optional) false hides the language selector
+  - show_country: {Boolean} (optional) false hides the country selector
+
+  Usage:
+  {% render 'localization-form', id: 'FooterLocalization' %}
+{%- endcomment -%}
+{%- liquid
+  assign can_language = false
+  assign can_country = false
+  if show_language != false and localization.available_languages.size > 1
+    assign can_language = true
+  endif
+  if show_country != false and localization.available_countries.size > 1
+    assign can_country = true
+  endif
+  assign language_form_id = id | append: 'Language'
+  assign country_form_id = id | append: 'Country'
+-%}
+{%- if can_language or can_country -%}
+  <div class="localize">
+    {%- if can_language -%}
+      {%- form 'localization', id: language_form_id, class: 'localize__form' -%}
+        <div class="field">
+          <label for="{{ language_form_id }}-select">{{ 'general.localization.language' | t }}</label>
+          <div class="select-wrap">
+            <select class="select" id="{{ language_form_id }}-select" name="language_code" data-localization-select>
+              {%- for language in localization.available_languages -%}
+                {%- liquid
+                  assign selected_attribute = ''
+                  if language.iso_code == localization.language.iso_code
+                    assign selected_attribute = 'selected'
+                  endif
+                  comment
+                    Only the first letter becomes a capital: "português (Portugal)" -> "Português (Portugal)".
+                  endcomment
+                  assign first_letter = language.endonym_name | slice: 0 | upcase
+                  assign other_letters = language.endonym_name | slice: 1, 100
+                  assign language_label = first_letter | append: other_letters
+                -%}
+                <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {{ selected_attribute }}>
+                  {{- language_label | escape -}}
+                </option>
+              {%- endfor -%}
+            </select>
+            {% render 'icon', name: 'down', class: 'icon--sm' %}
+          </div>
+        </div>
+        <noscript>
+          <button class="btn btn--secondary" type="submit">{{ 'general.localization.update' | t }}</button>
+        </noscript>
+      {%- endform -%}
+    {%- endif -%}
+
+    {%- if can_country -%}
+      {%- form 'localization', id: country_form_id, class: 'localize__form' -%}
+        <div class="field">
+          <label for="{{ country_form_id }}-select">{{ 'general.localization.country' | t }}</label>
+          <div class="select-wrap">
+            <select class="select" id="{{ country_form_id }}-select" name="country_code" data-localization-select>
+              {%- for country in localization.available_countries -%}
+                {%- liquid
+                  assign selected_attribute = ''
+                  if country.iso_code == localization.country.iso_code
+                    assign selected_attribute = 'selected'
+                  endif
+                  assign country_label = country.name | append: ' (' | append: country.currency.iso_code | append: ' ' | append: country.currency.symbol | append: ')'
+                -%}
+                <option value="{{ country.iso_code }}" {{ selected_attribute }}>
+                  {{- country_label | escape -}}
+                </option>
+              {%- endfor -%}
+            </select>
+            {% render 'icon', name: 'down', class: 'icon--sm' %}
+          </div>
+        </div>
+        <noscript>
+          <button class="btn btn--secondary" type="submit">{{ 'general.localization.update' | t }}</button>
+        </noscript>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}

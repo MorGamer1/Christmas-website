@@ -1,0 +1,103 @@
+{%- comment -%}
+  Top of a collection page: breadcrumbs, title, short description and buttons for the related collections.
+  The related collections are found in your main menu, so there is nothing to set up per collection:
+  - On a collection that has sub-items in the menu (Lights > Fairy lights, Icicle lights ...), the sub-items appear as buttons.
+  - On a sub-collection, its brothers and sisters appear, with "All lights" first, and the parent shows in the breadcrumbs.
+  - On the "all products" collection, the top-level menu items appear.
+{%- endcomment -%}
+{%- liquid
+  assign nav_menu = section.settings.menu
+  assign root_link = null
+  assign parent_link = null
+  assign chips_mode = 'none'
+
+  if collection.handle == 'all'
+    assign chips_mode = 'top'
+  else
+    for link in nav_menu.links
+      if link.url == collection.url
+        if link.links.size > 0
+          assign root_link = link
+          assign chips_mode = 'children'
+        endif
+        break
+      endif
+      for child in link.links
+        if child.url == collection.url
+          assign root_link = link
+          assign parent_link = link
+          assign chips_mode = 'children'
+          break
+        endif
+      endfor
+      if root_link != blank
+        break
+      endif
+    endfor
+  endif
+-%}
+
+<div class="container">
+  {% render 'breadcrumbs',
+    crumb_1_title: parent_link.title,
+    crumb_1_url: parent_link.url,
+    current: collection.title
+  %}
+
+  <div class="c-head">
+    <h1 class="t-display-l">{{ collection.title | escape }}</h1>
+    {%- if collection.description != blank and section.settings.show_description -%}
+      <div class="t-body-l c-head__text rte">{{ collection.description | replace: '<h1', '<h2' | replace: '</h1>', '</h2>' }}</div>
+    {%- endif -%}
+  </div>
+
+  {%- if chips_mode == 'top' -%}
+    {%- comment -%} Only menu items that lead to a collection become buttons (not Home, Contact ...). {%- endcomment -%}
+    {%- capture top_chips -%}
+      {%- for link in nav_menu.links -%}
+        {%- if link.url contains '/collections/' and link.url != collection.url -%}
+          {%- unless link.url contains '/products/' -%}
+            <a class="chip" href="{{ link.url }}">{{ link.title | escape }}</a>
+          {%- endunless -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if top_chips != blank -%}
+      <nav class="chips" aria-label="{{ 'collections.related' | t }}">
+        {{- top_chips -}}
+      </nav>
+    {%- endif -%}
+  {%- elsif chips_mode == 'children' -%}
+    <nav class="chips" aria-label="{{ 'collections.related' | t }}">
+      <a class="chip" href="{{ root_link.url }}"{% if root_link.url == collection.url %} aria-current="true"{% endif %}>
+        {{- 'collections.all_of' | t: title: root_link.title -}}
+      </a>
+      {%- for child in root_link.links -%}
+        <a class="chip" href="{{ child.url }}"{% if child.url == collection.url %} aria-current="true"{% endif %}>
+          {{- child.title | escape -}}
+        </a>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Collection banner",
+  "class": "section-collection-banner",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu used to find related collections",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show the collection description",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

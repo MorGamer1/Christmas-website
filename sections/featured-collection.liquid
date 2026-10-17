@@ -1,0 +1,132 @@
+{%- comment -%}
+  A row of products from one collection, for example "Best sellers" or "New in".
+  Pick the collection in the theme editor. The first products of the collection (in the order set on the collection) are shown.
+{%- endcomment -%}
+{%- liquid
+  assign featured = section.settings.collection
+  assign show_cards = false
+  if featured != blank and featured.products_count > 0
+    assign show_cards = true
+  endif
+-%}
+{%- if show_cards or request.design_mode -%}
+  {% render 'section-padding', section: section %}
+  <section
+    class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+    aria-labelledby="Heading-{{ section.id }}"
+  >
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="t-heading-l" id="Heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+          {%- if section.settings.text != blank -%}
+            <p class="muted">{{ section.settings.text | escape }}</p>
+          {%- endif -%}
+        </div>
+        {%- if featured != blank and section.settings.link_label != blank -%}
+          <a class="link-arrow" href="{{ featured.url }}">
+            <span class="u">{{ section.settings.link_label | escape }}</span>
+            {% render 'icon', name: 'arrow', class: 'icon--sm' %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- if show_cards -%}
+        <ul class="cards" role="list">
+          {%- for product in featured.products limit: section.settings.products_to_show -%}
+            {%- liquid
+              assign eager_card = false
+              if section.index == 1 and forloop.index <= 4
+                assign eager_card = true
+              endif
+            -%}
+            <li class="cards__item">
+              {% render 'card-product', product: product, eager: eager_card %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- elsif request.design_mode -%}
+        <p class="callout">
+          {% render 'icon', name: 'info' %}
+          <span>{{ 'sections.featured_collection.editor_note' | t }}</span>
+        </p>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "tag": "section",
+  "class": "section-featured-collection",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Best sellers"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 12,
+      "step": 4,
+      "label": "Number of products",
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link text",
+      "default": "View all"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collection"
+    }
+  ]
+}
+{% endschema %}

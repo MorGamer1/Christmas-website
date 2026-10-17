@@ -1,0 +1,95 @@
+{%- comment -%}
+  Swaps {tokens} in text you typed in the theme editor for the shared values in Theme settings.
+  That way a date or a price is written in one place only.
+
+  Tokens:
+  {date}           last order date, long        Tuesday 8 December
+  {short_date}     last order date, short       8 Dec
+  {dispatch}       dispatch time                2 working days     (the words follow the page language)
+  {transit}        time in transit              6 to 9 working days
+  {returns}        return period in days        14
+  {free_shipping}  free shipping threshold      €45
+  {shipping_fee}   standard shipping fee        €3.90
+  {email}          support email
+  {returns_url}    address of the returns page      /pages/returns
+  {delivery_url}   address of the delivery page     /pages/delivery
+
+  The text is made safe for HTML (characters like < and & are escaped), unless it is richtext that already is HTML
+  (then any <h1> in it becomes an <h2>, because the page already has its own headline).
+
+  Accepts:
+  - text: {String} the text that may contain tokens
+  - html: {Boolean} (optional) true when the text is richtext, that is already HTML, so it must not be escaped again
+
+  Usage:
+  {% render 'replace-tokens', text: section.settings.text %}
+  {% render 'replace-tokens', text: block.settings.answer, html: true %}
+{%- endcomment -%}
+{%- liquid
+  if html
+    assign result = text | replace: '<h1', '<h2' | replace: '</h1>', '</h2>'
+  else
+    assign result = text | escape_once
+  endif
+  if result contains '{'
+    if result contains '{date}'
+      capture token_value
+        render 'christmas-date', format: 'long'
+      endcapture
+      assign result = result | replace: '{date}', token_value
+    endif
+    if result contains '{short_date}'
+      capture token_value
+        render 'christmas-date', format: 'short'
+      endcapture
+      assign result = result | replace: '{short_date}', token_value
+    endif
+    if result contains '{dispatch}'
+      capture token_value
+        render 'delivery-time', kind: 'dispatch'
+      endcapture
+      assign result = result | replace: '{dispatch}', token_value
+    endif
+    if result contains '{transit}'
+      capture token_value
+        render 'delivery-time', kind: 'transit'
+      endcapture
+      assign result = result | replace: '{transit}', token_value
+    endif
+    assign token_value = settings.returns_days | default: ''
+    assign result = result | replace: '{returns}', token_value
+    if result contains '{free_shipping}'
+      assign token_value = ''
+      if settings.free_shipping_threshold > 0
+        assign token_value = settings.free_shipping_threshold | times: 100 | round | money_without_trailing_zeros
+      endif
+      assign result = result | replace: '{free_shipping}', token_value
+    endif
+    if result contains '{shipping_fee}'
+      assign token_value = ''
+      if settings.shipping_fee > 0
+        assign token_value = settings.shipping_fee | times: 100 | round | money
+      endif
+      assign result = result | replace: '{shipping_fee}', token_value
+    endif
+    assign token_value = settings.support_email | default: shop.email | escape_once
+    assign result = result | replace: '{email}', token_value
+    if result contains '_url}' or result contains '_url%7D'
+      capture token_value
+        render 'policy-url', kind: 'returns'
+      endcapture
+      if token_value == blank
+        assign token_value = routes.root_url | append: 'pages/returns'
+      endif
+      assign result = result | replace: '{returns_url}', token_value | replace: '%7Breturns_url%7D', token_value
+      capture token_value
+        render 'policy-url', kind: 'delivery'
+      endcapture
+      if token_value == blank
+        assign token_value = routes.root_url | append: 'pages/delivery'
+      endif
+      assign result = result | replace: '{delivery_url}', token_value | replace: '%7Bdelivery_url%7D', token_value
+    endif
+  endif
+  echo result
+-%}

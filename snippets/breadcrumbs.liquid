@@ -1,0 +1,81 @@
+{%- comment -%}
+  Breadcrumb trail, plus the matching structured data so Google can show the trail in search results.
+  "Home" is always first and the last item is the current page, so you only pass what is in between.
+
+  Accepts:
+  - current: {String} title of the current page
+  - crumb_1_title: {String} (optional) title of the first step after Home
+  - crumb_1_url: {String} (optional) its address
+  - crumb_2_title: {String} (optional) title of a second step
+  - crumb_2_url: {String} (optional) its address
+
+  Usage:
+  {% render 'breadcrumbs', crumb_1_title: collection.title, crumb_1_url: collection.url, current: product.title %}
+{%- endcomment -%}
+{%- liquid
+  assign has_crumb_1 = false
+  if crumb_1_title != blank and crumb_1_url != blank
+    assign has_crumb_1 = true
+  endif
+  assign has_crumb_2 = false
+  if crumb_2_title != blank and crumb_2_url != blank
+    assign has_crumb_2 = true
+  endif
+  assign home_label = 'general.breadcrumbs.home' | t
+-%}
+<nav class="crumbs" aria-label="{{ 'general.breadcrumbs.label' | t }}">
+  <ol>
+    <li><a href="{{ routes.root_url }}">{{ home_label }}</a></li>
+    {%- if has_crumb_1 -%}
+      <li><a href="{{ crumb_1_url }}">{{ crumb_1_title | escape }}</a></li>
+    {%- endif -%}
+    {%- if has_crumb_2 -%}
+      <li><a href="{{ crumb_2_url }}">{{ crumb_2_title | escape }}</a></li>
+    {%- endif -%}
+    <li><span aria-current="page">{{ current | escape }}</span></li>
+  </ol>
+</nav>
+{%- liquid
+  assign crumb_position = 1
+-%}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": {{ crumb_position }},
+        "name": {{ home_label | json }},
+        "item": {{ routes.root_url | prepend: request.origin | json }}
+      }
+      {%- if has_crumb_1 -%}
+        {%- assign crumb_position = crumb_position | plus: 1 -%}
+        ,
+        {
+          "@type": "ListItem",
+          "position": {{ crumb_position }},
+          "name": {{ crumb_1_title | json }},
+          "item": {{ crumb_1_url | prepend: request.origin | json }}
+        }
+      {%- endif -%}
+      {%- if has_crumb_2 -%}
+        {%- assign crumb_position = crumb_position | plus: 1 -%}
+        ,
+        {
+          "@type": "ListItem",
+          "position": {{ crumb_position }},
+          "name": {{ crumb_2_title | json }},
+          "item": {{ crumb_2_url | prepend: request.origin | json }}
+        }
+      {%- endif -%}
+      {%- assign crumb_position = crumb_position | plus: 1 -%}
+      ,
+      {
+        "@type": "ListItem",
+        "position": {{ crumb_position }},
+        "name": {{ current | json }}
+      }
+    ]
+  }
+</script>

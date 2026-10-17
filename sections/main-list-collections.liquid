@@ -1,0 +1,74 @@
+{%- comment -%}
+  The page that lists every collection (/collections): the same category tiles as on the home page.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- assign page_title = 'sections.list_collections.title' | t -%}
+{%- paginate collections by section.settings.collections_per_page -%}
+  <div class="container section-{{ section.id }}-padding">
+    {% render 'breadcrumbs', current: page_title %}
+
+    <div class="c-head">
+      <h1 class="t-display-l">{{ page_title }}</h1>
+    </div>
+
+    {%- if collections.size > 0 -%}
+      <div class="bento bento--even">
+        {%- for collection in collections -%}
+          {% render 'card-collection', collection: collection, show_count: true %}
+        {%- endfor -%}
+      </div>
+
+      {% render 'pagination', paginate: paginate %}
+    {%- else -%}
+      <div class="empty">
+        <h2 class="t-heading-m">{{ 'sections.list_collections.empty_title' | t }}</h2>
+        <p class="muted">{{ 'sections.list_collections.empty_text' | t }}</p>
+        <a class="btn btn--secondary" href="{{ routes.all_products_collection_url }}">
+          {{ 'cart.general.continue_shopping' | t }}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Collection list page",
+  "class": "section-list-collections",
+  "settings": [
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "label": "Collections per page",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ]
+}
+{% endschema %}

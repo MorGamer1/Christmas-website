@@ -1,0 +1,128 @@
+{%- comment -%}
+  Email sign-up panel. It creates a customer who accepts marketing, tagged "newsletter", so you can find them in Customers.
+  The default wording is a one-off reminder before the last order date.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  assign form_id = 'EmailSignup-' | append: section.id
+  assign input_id = 'EmailSignupInput-' | append: section.id
+-%}
+<section
+  class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+  aria-labelledby="Heading-{{ section.id }}"
+>
+  <div class="container">
+    <div class="news">
+      <div>
+        <h2 class="t-heading-l" id="Heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+        {%- if section.settings.text != blank -%}
+          <p class="muted news__text">{{ section.settings.text | escape }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- form 'customer', id: form_id, class: 'news__form' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="field">
+          <label for="{{ input_id }}">{{ 'sections.email_signup.label' | t }}</label>
+          <input
+            class="input"
+            id="{{ input_id }}"
+            name="contact[email]"
+            type="email"
+            autocomplete="email"
+            placeholder="{{ 'sections.email_signup.placeholder' | t }}"
+            value="{{ form.email }}"
+            required
+            {% if form.errors %}
+              aria-invalid="true"
+              aria-describedby="{{ form_id }}-error"
+            {% endif %}
+          >
+        </div>
+        <button class="btn btn--primary btn--l" type="submit">{{ section.settings.button_label | escape }}</button>
+
+        {%- if form.posted_successfully? -%}
+          <p class="form-msg" role="status" tabindex="-1" autofocus>{{ 'sections.email_signup.success' | t }}</p>
+        {%- endif -%}
+        {%- if form.errors -%}
+          <div class="form-msg" id="{{ form_id }}-error" data-kind="error" role="alert">
+            {{- form.errors | default_errors -}}
+          </div>
+        {%- endif -%}
+        {%- if section.settings.consent != blank -%}
+          <small class="muted news__consent">{{ section.settings.consent | escape }}</small>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Email sign-up",
+  "tag": "section",
+  "class": "section-signup",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Get the last-order reminder"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "One email a few days before the cut-off date. Nothing else."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button text",
+      "default": "Remind me"
+    },
+    {
+      "type": "text",
+      "id": "consent",
+      "label": "Small print",
+      "default": "By subscribing you agree to receive emails from us. You can unsubscribe at any time.",
+      "info": "Needed in the EU, where a person has to agree to marketing emails."
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ],
+  "presets": [
+    {
+      "name": "Email sign-up"
+    }
+  ]
+}
+{% endschema %}

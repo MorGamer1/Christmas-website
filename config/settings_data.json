@@ -1,0 +1,101 @@
+{
+  "current": "Firside",
+  "presets": {
+    "Firside": {
+      "logo_width": 120,
+      "color_schemes": {
+        "scheme-1": {
+          "settings": {
+            "background": "#F6F8F5",
+            "surface": "#EAF0EC",
+            "raised": "#FFFFFF",
+            "border": "#D5E0D9",
+            "border_strong": "#76847C",
+            "text": "#0F2E22",
+            "text_muted": "#52625A",
+            "icon": "#2A6B52",
+            "accent": "#9C7416",
+            "button": "#B3122B",
+            "button_label": "#FFFFFF",
+            "button_hover": "#97102A",
+            "focus": "#1E5440"
+          }
+        },
+        "scheme-2": {
+          "settings": {
+            "background": "#0F2E22",
+            "surface": "#16402F",
+            "raised": "#16402F",
+            "border": "#1E5440",
+            "border_strong": "#9FC2B0",
+            "text": "#FFFFFF",
+            "text_muted": "#9FC2B0",
+            "icon": "#9FC2B0",
+            "accent": "#C9A24A",
+            "button": "#FFFFFF",
+            "button_label": "#0F2E22",
+            "button_hover": "#E1EEE6",
+            "focus": "#C9A24A"
+          }
+        },
+        "scheme-3": {
+          "settings": {
+            "background": "#0A2018",
+            "surface": "#0F2E22",
+            "raised": "#0F2E22",
+            "border": "#16402F",
+            "border_strong": "#9FC2B0",
+            "text": "#FFFFFF",
+            "text_muted": "#9FC2B0",
+            "icon": "#9FC2B0",
+            "accent": "#C9A24A",
+            "button": "#FFFFFF",
+            "button_label": "#0F2E22",
+            "button_hover": "#E1EEE6",
+            "focus": "#C9A24A"
+          }
+        },
+        "scheme-4": {
+          "settings": {
+            "background": "#FFFFFF",
+            "surface": "#F6F8F5",
+            "raised": "#FFFFFF",
+            "border": "#D5E0D9",
+            "border_strong": "#76847C",
+            "text": "#0F2E22",
+            "text_muted": "#52625A",
+            "icon": "#2A6B52",
+            "accent": "#9C7416",
+            "button": "#B3122B",
+            "button_label": "#FFFFFF",
+            "button_hover": "#97102A",
+            "focus": "#1E5440"
+          }
+        }
+      },
+      "use_custom_fonts": false,
+      "custom_heading_font": "assistant_n7",
+      "custom_body_font": "assistant_n4",
+      "page_width": 1184,
+      "christmas_enabled": true,
+      "christmas_cutoff_date": "2026-12-08",
+      "dispatch_days": 2,
+      "transit_days_min": 6,
+      "transit_days_max": 9,
+      "shipping_fee": 3.9,
+      "free_shipping_threshold": 45,
+      "returns_days": 14,
+      "delivery_page": "delivery",
+      "returns_page": "returns",
+      "support_email": "",
+      "card_quick_add": true,
+      "card_secondary_image": true,
+      "card_show_vendor": false,
+      "show_compare_at_price": false,
+      "cart_type": "drawer",
+      "cart_note": false,
+      "predictive_search_enabled": true,
+      "media_ratio": "portrait"
+    }
+  }
+}

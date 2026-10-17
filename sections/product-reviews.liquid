@@ -1,0 +1,92 @@
+{%- comment -%}
+  Home for product reviews. The theme does not invent any: nothing shows on the live store until you add a reviews app.
+  How to add it: install a reviews app (Judge.me, Loox, Shopify Product Reviews ...), then in the theme editor open a product page,
+  click "Add block" in this section and choose the app's reviews block.
+  Never publish reviews you did not collect from real buyers: it is illegal in the EU and UK.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- if section.blocks.size > 0 -%}
+  <section
+    class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+    {% if section.settings.heading != blank %}
+      aria-labelledby="Heading-{{ section.id }}"
+    {% endif %}
+  >
+    <div class="container">
+      <div class="reviews">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="t-heading-m" id="Heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- elsif request.design_mode -%}
+  <section class="section-{{ section.id }}-padding">
+    <div class="container">
+      <p class="callout">
+        {% render 'icon', name: 'info' %}
+        <span>{{ 'sections.reviews.editor_note' | t }}</span>
+      </p>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product reviews",
+  "class": "section-reviews",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Add the block of your reviews app below. Until then nothing shows on the live store."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Most reviews apps add their own heading. Leave empty in that case."
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,41 @@
+{%- comment -%}
+  The price of a product, or of one variant.
+  When the variants cost different amounts and no variant is given, it shows "From" and the lowest price.
+  Compare-at prices and "was" styling only appear if you turn them on in Theme settings > Product cards.
+
+  Accepts:
+  - product: {Object} the product
+  - variant: {Object} (optional) show the price of this variant instead of "From"
+  - class: {String} (optional) extra css classes
+
+  Usage:
+  {% render 'price', product: product %}
+{%- endcomment -%}
+{%- liquid
+  assign price_source = variant | default: product
+  assign current_price = price_source.price
+  assign compare_price = price_source.compare_at_price
+
+  assign on_sale = false
+  if settings.show_compare_at_price and compare_price > current_price
+    assign on_sale = true
+  endif
+
+  assign show_from = false
+  if variant == blank and product.price_varies and on_sale == false
+    assign show_from = true
+  endif
+-%}
+<span class="price{% if on_sale %} price--sale{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+    <span class="price__now tnum">{{ current_price | money }}</span>
+    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+    <s class="price__was tnum">{{ compare_price | money }}</s>
+  {%- else -%}
+    {%- if show_from -%}
+      <small class="price__from">{{ 'products.product.price.from' | t }}</small>
+    {%- endif -%}
+    <span class="price__now tnum">{{ current_price | money }}</span>
+  {%- endif -%}
+</span>

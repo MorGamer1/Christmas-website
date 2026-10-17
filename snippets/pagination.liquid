@@ -1,0 +1,50 @@
+{%- comment -%}
+  Numbered page links for a {% paginate %} block: Previous, 1 2 3 … 9, Next.
+  Shows nothing when there is only one page.
+
+  Accepts:
+  - paginate: {Object} the paginate object
+
+  Usage:
+  {% render 'pagination', paginate: paginate %}
+{%- endcomment -%}
+{%- if paginate.pages > 1 -%}
+  {%- assign current_title = paginate.current_page | append: '' -%}
+  <nav class="pager" aria-label="{{ 'general.pagination.label' | t }}">
+    {%- if paginate.previous.is_link -%}
+      <a class="pager__nav" href="{{ paginate.previous.url }}" rel="prev">
+        {% render 'icon', name: 'left', class: 'icon--sm' %}
+        {{ 'general.pagination.previous' | t }}
+      </a>
+    {%- else -%}
+      <span class="pager__nav is-disabled" aria-hidden="true">
+        {% render 'icon', name: 'left', class: 'icon--sm' %}
+        {{ 'general.pagination.previous' | t }}
+      </span>
+    {%- endif -%}
+
+    {%- for part in paginate.parts -%}
+      {%- comment -%} The title can be a number or text, so both sides are turned into text before they are compared. {%- endcomment -%}
+      {%- assign part_title = part.title | append: '' -%}
+      {%- if part.is_link -%}
+        <a href="{{ part.url }}" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">{{ part.title }}</a>
+      {%- elsif part_title == current_title -%}
+        <span class="pager__current" aria-current="page" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">{{ part.title }}</span>
+      {%- else -%}
+        <span class="pager__gap" aria-hidden="true">{{ part.title }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if paginate.next.is_link -%}
+      <a class="pager__nav" href="{{ paginate.next.url }}" rel="next">
+        {{ 'general.pagination.next' | t }}
+        {% render 'icon', name: 'right', class: 'icon--sm' %}
+      </a>
+    {%- else -%}
+      <span class="pager__nav is-disabled" aria-hidden="true">
+        {{ 'general.pagination.next' | t }}
+        {% render 'icon', name: 'right', class: 'icon--sm' %}
+      </span>
+    {%- endif -%}
+  </nav>
+{%- endif -%}

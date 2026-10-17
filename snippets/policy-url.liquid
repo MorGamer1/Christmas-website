@@ -1,0 +1,26 @@
+{%- comment -%}
+  Prints the address of the delivery page or the returns page.
+  It uses the page picked in Theme settings > Christmas and delivery, and falls back to the matching store policy.
+  Prints nothing when neither exists.
+
+  Accepts:
+  - kind: {String} 'delivery' or 'returns'
+
+  Usage (a snippet cannot return a value, so capture what it prints):
+  {% capture delivery_url %}{% render 'policy-url', kind: 'delivery' %}{% endcapture %}
+{%- endcomment -%}
+{%- liquid
+  if kind == 'returns'
+    if settings.returns_page != blank
+      echo settings.returns_page.url
+    elsif shop.refund_policy.body != blank
+      echo shop.refund_policy.url
+    endif
+  else
+    if settings.delivery_page != blank
+      echo settings.delivery_page.url
+    elsif shop.shipping_policy.body != blank
+      echo shop.shipping_policy.url
+    endif
+  endif
+-%}

@@ -1,0 +1,195 @@
+{%- comment -%}
+  "Gifts by budget": buttons such as "Under €10 / €15 / €20". Each button shows the first products of one collection.
+  Create the collections in Products > Collections (an automated collection with the condition "Price is less than 10" is enough).
+  Without JavaScript the buttons are plain links to the collections; with it they switch the products shown here.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- liquid
+  assign shown = 0
+  assign first_collection = null
+  for block in section.blocks
+    if block.settings.collection != blank
+      assign shown = shown | plus: 1
+      if shown == 1
+        assign first_collection = block.settings.collection
+      endif
+    endif
+  endfor
+-%}
+{%- if shown > 0 -%}
+  <section
+    class="color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding"
+    aria-labelledby="Heading-{{ section.id }}"
+    data-budget
+  >
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="t-heading-l" id="Heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+          {%- if section.settings.text != blank -%}
+            <p class="muted">{{ section.settings.text | escape }}</p>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.link_label != blank -%}
+          <a class="link-arrow" href="{{ first_collection.url }}" data-budget-all>
+            <span class="u">{{ section.settings.link_label | escape }}</span>
+            {% render 'icon', name: 'arrow', class: 'icon--sm' %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="budget" role="group" aria-label="{{ 'sections.budget.label' | t }}">
+        {%- assign tab_index = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.settings.collection != blank -%}
+            {%- assign tab_index = tab_index | plus: 1 -%}
+            <a
+              class="chip"
+              href="{{ block.settings.collection.url }}"
+              data-budget-tab="{{ block.id }}"
+              {% if tab_index == 1 %}
+                aria-current="true"
+              {% endif %}
+              {{ block.shopify_attributes }}
+            >
+              {{- block.settings.label | default: block.settings.collection.title | escape -}}
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- assign panel_index = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.collection != blank -%}
+          {%- assign panel_index = panel_index | plus: 1 -%}
+          <ul
+            class="cards cards--scroll"
+            role="list"
+            data-budget-panel="{{ block.id }}"
+            data-url="{{ block.settings.collection.url }}"
+            {% unless panel_index == 1 %}
+              hidden
+            {% endunless %}
+          >
+            {%- for product in block.settings.collection.products limit: section.settings.products_to_show -%}
+              <li class="cards__item">{% render 'card-product', product: product %}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Gifts by budget",
+  "tag": "section",
+  "class": "section-budget",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Gifts by budget"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Stocking fillers and small gifts that arrive in time."
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link text",
+      "default": "See all",
+      "info": "Links to the collection of the selected button. Leave empty for no link."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "label": "Products to show",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ],
+  "blocks": [
+    {
+      "type": "budget",
+      "name": "Budget button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Button text",
+          "default": "Under €10"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Gifts by budget",
+      "blocks": [
+        {
+          "type": "budget",
+          "settings": {
+            "label": "Under €10"
+          }
+        },
+        {
+          "type": "budget",
+          "settings": {
+            "label": "Under €15"
+          }
+        },
+        {
+          "type": "budget",
+          "settings": {
+            "label": "Under €20"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

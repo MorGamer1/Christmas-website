@@ -1,0 +1,44 @@
+{%- comment -%}
+  Progress bar towards free shipping: "You are €12.10 away from free shipping".
+  It uses the threshold from Theme settings > Christmas and delivery, and is hidden when:
+  - no threshold is set
+  - the cart is empty
+  - the customer sees prices in another currency (the threshold is in the store currency)
+
+  Usage:
+  {% render 'free-shipping-progress' %}
+{%- endcomment -%}
+{%- liquid
+  assign show_progress = false
+  if settings.free_shipping_threshold > 0 and cart.item_count > 0 and cart.currency.iso_code == shop.currency
+    assign show_progress = true
+    assign threshold_cents = settings.free_shipping_threshold | times: 100 | round
+    assign remaining_cents = threshold_cents | minus: cart.total_price
+    assign progress_percent = cart.total_price | times: 100 | divided_by: threshold_cents | at_most: 100
+    assign progress_now = cart.total_price | at_most: threshold_cents | divided_by: 100.0
+    assign progress_max = threshold_cents | divided_by: 100.0
+    assign remaining_text = remaining_cents | money
+  endif
+-%}
+{%- if show_progress -%}
+  <div class="progress" data-free-shipping>
+    <p class="t-label-m">
+      {%- if remaining_cents > 0 -%}
+        {{ 'cart.free_shipping.remaining' | t: amount: remaining_text }}
+      {%- else -%}
+        {% render 'icon', name: 'check', class: 'icon--sm' %}
+        {{ 'cart.free_shipping.reached' | t }}
+      {%- endif -%}
+    </p>
+    <div
+      class="progress__bar"
+      role="progressbar"
+      aria-label="{{ 'cart.free_shipping.label' | t }}"
+      aria-valuemin="0"
+      aria-valuemax="{{ progress_max }}"
+      aria-valuenow="{{ progress_now }}"
+    >
+      <i style="width: {{ progress_percent }}%"></i>
+    </div>
+  </div>
+{%- endif -%}

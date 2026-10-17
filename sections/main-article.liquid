@@ -1,0 +1,101 @@
+{%- comment -%}
+  One blog post: title, date, picture and text. Comments are not shown (they attract spam).
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+<div class="container section-{{ section.id }}-padding">
+  {% render 'breadcrumbs',
+    crumb_1_title: blog.title,
+    crumb_1_url: blog.url,
+    current: article.title
+  %}
+
+  <article class="article">
+    <header class="article__head">
+      <p class="eyebrow">
+        {{- article.published_at | time_tag: format: 'date' -}}
+        {%- if section.settings.show_author and article.author != blank -%}
+          {{ ' · ' }}{{ article.author | escape }}
+        {%- endif -%}
+      </p>
+      <h1 class="t-display-l">{{ article.title | escape }}</h1>
+    </header>
+
+    {%- if article.image != blank -%}
+      <div class="article__media">
+        {{
+          article.image
+          | image_url: width: 1600
+          | image_tag:
+            loading: 'eager',
+            fetchpriority: 'high',
+            widths: '480, 720, 960, 1280, 1600',
+            sizes: '(min-width: 1280px) 1120px, (min-width: 1024px) 90vw, 100vw',
+            class: 'article__img',
+            alt: article.image.alt | default: article.title
+        }}
+      </div>
+    {%- endif -%}
+
+    <div class="prose">
+      <div class="rte">{{ article.content | replace: '<h1', '<h2' | replace: '</h1>', '</h2>' }}</div>
+    </div>
+
+    {%- if article.tags.size > 0 -%}
+      <ul class="article__tags" role="list">
+        {%- for tag in article.tags -%}
+          <li><a class="chip" href="{{ blog.url }}/tags/{{ tag | handleize }}">{{ tag | escape }}</a></li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <p class="article__back">
+      <a class="link-arrow" href="{{ blog.url }}">
+        {% render 'icon', name: 'left', class: 'icon--sm' %}
+        <span class="u">{{ 'blogs.back' | t: title: blog.title }}</span>
+      </a>
+    </p>
+  </article>
+</div>
+
+<script type="application/ld+json">
+  {{ article | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "Blog post",
+  "class": "section-article",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show the author",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ]
+}
+{% endschema %}

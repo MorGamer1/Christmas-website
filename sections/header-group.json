@@ -1,0 +1,46 @@
+{
+  "name": "Header group",
+  "type": "header",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "free-shipping": {
+          "type": "free_shipping",
+          "settings": {
+            "hide_on_mobile": false
+          }
+        },
+        "christmas": {
+          "type": "christmas",
+          "settings": {
+            "hide_on_mobile": true
+          }
+        }
+      },
+      "block_order": [
+        "free-shipping",
+        "christmas"
+      ],
+      "settings": {
+        "color_scheme": "scheme-2",
+        "link_label": "Delivery dates"
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "menu": "main-menu",
+        "secondary_menu": "footer-help",
+        "sticky": true,
+        "show_account": true,
+        "popular_searches": "Fairy lights\nCandles\nBaubles\nWrapping paper\nMug"
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
+}

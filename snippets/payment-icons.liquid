@@ -1,0 +1,30 @@
+{%- comment -%}
+  The payment methods your checkout accepts, as Shopify's own logos.
+  The list follows Settings > Payments in the Shopify admin, so there is nothing to maintain here.
+
+  Shopify's logos carry an id attribute (pi-visa, pi-paypal...). When the logos show twice on the same page
+  (footer and cart), the second copy should pass ids: false, so no id appears twice.
+
+  Accepts:
+  - ids: {Boolean} (optional) false to leave the id attributes out. Keep the default in the footer.
+
+  Usage:
+  {% render 'payment-icons' %}
+  {% render 'payment-icons', ids: false %}
+{%- endcomment -%}
+{%- if shop.enabled_payment_types.size > 0 -%}
+  <ul class="pays" role="list" aria-label="{{ 'general.payment_methods' | t }}">
+    {%- for type in shop.enabled_payment_types -%}
+      <li class="pay">
+        {%- if ids == false -%}
+          {%- assign logo_id = 'pi-' | append: type -%}
+          {%- assign id_attribute = ' id="' | append: logo_id | append: '"' -%}
+          {%- assign label_attribute = ' aria-labelledby="' | append: logo_id | append: '"' -%}
+          {{- type | payment_type_svg_tag: class: 'pay__icon' | replace: id_attribute, '' | replace: label_attribute, '' -}}
+        {%- else -%}
+          {{- type | payment_type_svg_tag: class: 'pay__icon' -}}
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

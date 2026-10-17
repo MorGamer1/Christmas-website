@@ -1,0 +1,45 @@
+{%- comment -%}
+  Category tile for the "Shop by category" grid: a picture with a white label that names the collection.
+  The picture is the collection image. If the collection has none, the theme's own illustration is used.
+
+  Accepts:
+  - collection: {Object} the collection
+  - lead: {Boolean} (optional) true for the big first tile
+  - show_count: {Boolean} (optional) show "8 products" under the name
+  - shopify_attributes: {String} (optional) pass block.shopify_attributes so the theme editor can highlight the tile
+
+  Usage:
+  {% render 'card-collection', collection: collection, lead: true, show_count: true %}
+{%- endcomment -%}
+{%- liquid
+  if lead
+    assign tile_sizes = '(min-width: 1024px) 50vw, 100vw'
+  else
+    assign tile_sizes = '(min-width: 1024px) 25vw, 50vw'
+  endif
+-%}
+<a class="tile{% if lead %} tile--lead{% endif %}" href="{{ collection.url }}" {{ shopify_attributes }}>
+  {%- if collection.featured_image != blank -%}
+    {{
+      collection.featured_image
+      | image_url: width: 1100
+      | image_tag:
+        loading: 'lazy',
+        sizes: tile_sizes,
+        widths: '320, 480, 640, 800, 1100',
+        class: 'tile__img',
+        alt: ''
+    }}
+  {%- else -%}
+    {% render 'collection-art', handle: collection.handle, class: 'tile__img' %}
+  {%- endif -%}
+  <span class="tile__label">
+    <span class="tile__text">
+      <span class="tile__name">{{ collection.title | escape }}</span>
+      {%- if show_count -%}
+        <span class="tile__count">{{ 'collections.product_count' | t: count: collection.all_products_count }}</span>
+      {%- endif -%}
+    </span>
+    <span class="tile__go" aria-hidden="true">{% render 'icon', name: 'arrow', class: 'icon--sm' %}</span>
+  </span>
+</a>

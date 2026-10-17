@@ -1,0 +1,83 @@
+{%- comment -%}
+  Cart drawer: slides in from the right when something is added, or when the bag icon is clicked.
+  It is only used when Theme settings > Cart > Cart type is "Drawer".
+  After every change, theme.js asks Shopify for this section again and swaps the content of [data-cart-inner]
+  (Section Rendering API), so the drawer is always in step with the real cart.
+{%- endcomment -%}
+{%- liquid
+  assign guests_allowed = false
+  if shop.customer_accounts_enabled == false or shop.customer_accounts_optional
+    assign guests_allowed = true
+  endif
+-%}
+<dialog class="layer" id="CartDrawer" aria-labelledby="CartDrawerTitle" data-cart-drawer>
+  <div class="layer__scrim" data-close></div>
+  <div class="drawer color-{{ section.settings.color_scheme }}">
+    <div class="drawer__head">
+      <h2 id="CartDrawerTitle" tabindex="-1">
+        {{ 'cart.general.title' | t }}
+        <span class="muted t-body-l" data-cart-count-label>
+          {%- if cart.item_count > 0 -%}
+            ({{ cart.item_count }})
+          {%- endif -%}
+        </span>
+      </h2>
+      <button class="icon-btn" type="button" data-close aria-label="{{ 'general.close' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </div>
+
+    <div class="drawer__inner" data-cart-inner>
+      {%- if cart.item_count == 0 -%}
+        <div class="drawer__body">
+          <div class="drawer__empty">
+            <p class="t-heading-m">{{ 'cart.general.empty' | t }}</p>
+            <p class="muted">{{ 'cart.general.empty_text' | t }}</p>
+            <a class="btn btn--primary btn--l" href="{{ routes.all_products_collection_url }}">
+              {{ 'cart.general.continue_shopping' | t }}
+            </a>
+          </div>
+        </div>
+      {%- else -%}
+        <form class="drawer__form" action="{{ routes.cart_url }}" method="post" id="CartDrawerForm" data-cart-form>
+          <div class="drawer__body">
+            {% render 'free-shipping-progress' %}
+            <ul role="list">
+              {%- for item in cart.items -%}
+                {% render 'cart-line', item: item, index: forloop.index, context: 'drawer' %}
+              {%- endfor -%}
+            </ul>
+            <p class="note">
+              {% render 'icon', name: 'truck' %}
+              <span>{% render 'delivery-note', context: 'cart' %}</span>
+            </p>
+          </div>
+          <div class="drawer__foot">
+            {% render 'cart-totals' %}
+            <button class="btn btn--primary btn--l btn--block" type="submit" name="checkout">
+              {{ 'cart.general.checkout' | t }}
+            </button>
+            {%- if guests_allowed -%}
+              <p class="t-body-s muted" style="text-align: center">{{ 'cart.general.guest_checkout' | t }}</p>
+            {%- endif -%}
+            {% render 'payment-icons', ids: false %}
+          </div>
+        </form>
+      {%- endif -%}
+    </div>
+  </div>
+</dialog>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

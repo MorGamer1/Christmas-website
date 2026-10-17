@@ -1,0 +1,49 @@
+{%- comment -%}
+  The small print under a price: whether tax is included, what shipping costs and when it is free.
+  It prints the text only, so wrap it where you use it. The amounts come from Theme settings > Christmas and delivery.
+  They are shown only when the shop is viewed in its own currency, so a customer in another currency never sees a wrong amount.
+
+  Usage:
+  <small class="price-note">{% render 'shipping-line' %}</small>
+{%- endcomment -%}
+{%- liquid
+  capture delivery_url
+    render 'policy-url', kind: 'delivery'
+  endcapture
+
+  assign fee_text = ''
+  assign threshold_text = ''
+  if cart.currency.iso_code == shop.currency
+    if settings.shipping_fee > 0
+      assign fee_text = settings.shipping_fee | times: 100 | round | money
+    endif
+    if settings.free_shipping_threshold > 0
+      assign threshold_text = settings.free_shipping_threshold | times: 100 | round | money_without_trailing_zeros
+    endif
+  endif
+
+  if shop.taxes_included
+    echo 'price.vat_included' | t
+  else
+    echo 'price.tax_excluded' | t
+  endif
+  echo ' '
+
+  if delivery_url != blank
+    echo '<a href="' | append: delivery_url | append: '">'
+  endif
+
+  if fee_text != blank and threshold_text != blank
+    echo 'price.shipping_both' | t: fee: fee_text, threshold: threshold_text
+  elsif fee_text != blank
+    echo 'price.shipping_fee_only' | t: fee: fee_text
+  elsif threshold_text != blank
+    echo 'price.shipping_free_only' | t: threshold: threshold_text
+  else
+    echo 'price.shipping_at_checkout' | t
+  endif
+
+  if delivery_url != blank
+    echo '</a>'
+  endif
+-%}

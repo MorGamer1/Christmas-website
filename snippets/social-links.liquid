@@ -1,0 +1,34 @@
+{%- comment -%}
+  Row of social media icons. Only the networks with a link in Theme settings > Social media are shown.
+
+  Usage:
+  {% render 'social-links' %}
+{%- endcomment -%}
+{%- if settings.social_instagram_link != blank
+  or settings.social_facebook_link != blank
+  or settings.social_tiktok_link != blank
+  or settings.social_pinterest_link != blank
+  or settings.social_youtube_link != blank
+  or settings.social_x_link != blank
+-%}
+  <ul class="social" role="list">
+    {%- if settings.social_instagram_link != blank -%}
+      <li><a href="{{ settings.social_instagram_link }}" rel="me noopener"><span class="visually-hidden">Instagram</span>{% render 'icon', name: 'instagram' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_facebook_link != blank -%}
+      <li><a href="{{ settings.social_facebook_link }}" rel="me noopener"><span class="visually-hidden">Facebook</span>{% render 'icon', name: 'facebook' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_tiktok_link != blank -%}
+      <li><a href="{{ settings.social_tiktok_link }}" rel="me noopener"><span class="visually-hidden">TikTok</span>{% render 'icon', name: 'tiktok' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_pinterest_link != blank -%}
+      <li><a href="{{ settings.social_pinterest_link }}" rel="me noopener"><span class="visually-hidden">Pinterest</span>{% render 'icon', name: 'pinterest' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_youtube_link != blank -%}
+      <li><a href="{{ settings.social_youtube_link }}" rel="me noopener"><span class="visually-hidden">YouTube</span>{% render 'icon', name: 'youtube' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_x_link != blank -%}
+      <li><a href="{{ settings.social_x_link }}" rel="me noopener"><span class="visually-hidden">X</span>{% render 'icon', name: 'x' %}</a></li>
+    {%- endif -%}
+  </ul>
+{%- endif -%}

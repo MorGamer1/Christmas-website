@@ -1,0 +1,145 @@
+{%- comment -%}
+  The search results page: a search box, then products as cards and any pages or blog posts as a short list.
+  The quick suggestions that drop down while typing are in sections/predictive-search.liquid.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+<div class="container search section-{{ section.id }}-padding">
+  <div class="search__head">
+    <h1 class="t-display-l">{{ 'search.title' | t }}</h1>
+    <form class="search__form" action="{{ routes.search_url }}" method="get" role="search">
+      <div class="field">
+        <label class="visually-hidden" for="SearchPageInput-{{ section.id }}">{{ 'sections.header.search_label' | t }}</label>
+        <input
+          class="input"
+          type="search"
+          id="SearchPageInput-{{ section.id }}"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="{{ 'sections.header.search_placeholder' | t }}"
+          autocomplete="off"
+        >
+      </div>
+      <input type="hidden" name="options[prefix]" value="last">
+      <button class="btn btn--primary btn--l" type="submit">{{ 'search.submit' | t }}</button>
+    </form>
+  </div>
+
+  {%- if search.performed -%}
+    {%- paginate search.results by section.settings.products_per_page -%}
+      <p class="muted search__count" role="status">
+        {%- if search.results_count > 0 -%}
+          {{ 'search.results_for' | t: terms: search.terms, count: search.results_count }}
+        {%- else -%}
+          {{ 'search.no_results_for' | t: terms: search.terms }}
+        {%- endif -%}
+      </p>
+
+      {%- if search.results_count > 0 -%}
+        {%- assign has_products = false -%}
+        {%- assign has_other = false -%}
+        {%- for item in search.results -%}
+          {%- if item.object_type == 'product' -%}
+            {%- assign has_products = true -%}
+          {%- else -%}
+            {%- assign has_other = true -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if has_products -%}
+          <ul class="cards" role="list">
+            {%- for item in search.results -%}
+              {%- if item.object_type == 'product' -%}
+                {%- liquid
+                  assign eager_card = false
+                  if forloop.index <= 4
+                    assign eager_card = true
+                  endif
+                -%}
+                <li class="cards__item">
+                  {% render 'card-product', product: item, eager: eager_card %}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- if has_other -%}
+          <ul class="results" role="list">
+            {%- for item in search.results -%}
+              {%- unless item.object_type == 'product' -%}
+                <li class="results__item">
+                  <a class="results__link" href="{{ item.url }}">
+                    <span class="eyebrow">
+                      {%- if item.object_type == 'article' -%}
+                        {{ 'search.type_article' | t }}
+                      {%- else -%}
+                        {{ 'search.type_page' | t }}
+                      {%- endif -%}
+                    </span>
+                    <span class="t-heading-s">{{ item.title | escape }}</span>
+                    {%- assign excerpt = item.content | strip_html | truncate: 160 -%}
+                    {%- if excerpt != blank -%}
+                      <span class="muted">{{ excerpt }}</span>
+                    {%- endif -%}
+                  </a>
+                </li>
+              {%- endunless -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {% render 'pagination', paginate: paginate %}
+      {%- else -%}
+        <div class="empty">
+          <h2 class="t-heading-m">{{ 'search.empty_title' | t }}</h2>
+          <p class="muted">{{ 'search.empty_text' | t }}</p>
+          <a class="btn btn--secondary" href="{{ routes.all_products_collection_url }}">
+            {{ 'cart.general.continue_shopping' | t }}
+          </a>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Search results",
+  "class": "section-search",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "label": "Results per page",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ]
+}
+{% endschema %}

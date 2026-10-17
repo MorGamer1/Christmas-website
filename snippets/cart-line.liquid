@@ -1,0 +1,103 @@
+{%- comment -%}
+  One line of the cart: photo, name, options, price, quantity stepper and a remove link.
+  Used by the cart drawer and by the cart page.
+
+  Accepts:
+  - item: {Object} the cart line item
+  - index: {Number} the line number, starting at 1
+  - context: {String} 'drawer' or 'page'. Keeps the ids of the two carts apart.
+
+  Usage:
+  {% render 'cart-line', item: item, index: forloop.index, context: 'drawer' %}
+{%- endcomment -%}
+{%- liquid
+  assign line_max = null
+  if item.variant.inventory_management == 'shopify' and item.variant.inventory_policy == 'deny'
+    assign line_max = item.variant.inventory_quantity
+  endif
+  assign quantity_id = 'Quantity-' | append: context | append: '-' | append: index
+  assign quantity_label = 'cart.general.quantity_of' | t: title: item.product.title
+  assign remove_label = 'cart.general.remove_named' | t: title: item.product.title
+  assign price_each = item.final_price | money
+-%}
+<li class="line" id="CartItem-{{ context }}-{{ index }}" data-line="{{ index }}" data-key="{{ item.key }}">
+  <a class="line__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+    {%- if item.image != blank -%}
+      {{
+        item.image
+        | image_url: width: 240
+        | image_tag:
+          loading: 'lazy',
+          sizes: '88px',
+          widths: '88, 120, 176, 240',
+          class: 'line__img',
+          alt: ''
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'line__img' }}
+    {%- endif -%}
+  </a>
+
+  <div class="line__body">
+    <div class="line__top">
+      <a class="line__name" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+      <span class="line__total tnum t-label-m">
+        {%- if item.original_line_price != item.final_line_price -%}
+          <s class="line__was">{{ item.original_line_price | money }}</s>
+        {%- endif -%}
+        {{ item.final_line_price | money }}
+      </span>
+    </div>
+
+    {%- unless item.product.has_only_default_variant -%}
+      {%- for option in item.options_with_values -%}
+        <p class="line__var">{{ option.name | escape }}: {{ option.value | escape }}</p>
+      {%- endfor -%}
+    {%- endunless -%}
+
+    {%- for property in item.properties -%}
+      {%- assign property_first_char = property.first | slice: 0 -%}
+      {%- if property.last != blank and property_first_char != '_' -%}
+        <p class="line__var">
+          {{ property.first | escape }}:
+          {% if property.last contains '/uploads/' -%}
+            <a href="{{ property.last }}">{{ property.last | split: '/' | last | escape }}</a>
+          {%- else -%}
+            {{ property.last | escape }}
+          {%- endif %}
+        </p>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <p class="line__var tnum">{{ 'cart.general.price_each' | t: price: price_each }}</p>
+
+    {%- if item.line_level_discount_allocations.size > 0 -%}
+      <ul class="line__discounts" role="list">
+        {%- for allocation in item.line_level_discount_allocations -%}
+          <li>{{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money }})</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <div class="line__row">
+      {% render 'quantity-input',
+        id: quantity_id,
+        label: quantity_label,
+        value: item.quantity,
+        min: 0,
+        max: line_max,
+        name: 'updates[]',
+        size: 'sm',
+        line: index
+      %}
+      <a
+        class="link-btn"
+        href="{{ item.url_to_remove }}"
+        data-cart-remove
+        aria-label="{{ remove_label }}"
+      >{{ 'cart.general.remove' | t }}</a>
+    </div>
+
+    <p class="line__error form-msg" id="LineError-{{ context }}-{{ index }}" data-kind="error" role="alert" hidden></p>
+  </div>
+</li>

@@ -1,0 +1,77 @@
+{%- comment -%}
+  "Page not found". Gives a way back: search, and the main categories from the main menu.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+<div class="container section-{{ section.id }}-padding">
+  <div class="notfound">
+    <p class="notfound__code" aria-hidden="true">404</p>
+    <h1 class="t-display-l">{{ 'sections.not_found.title' | t }}</h1>
+    <p class="muted t-body-l">{{ 'sections.not_found.text' | t }}</p>
+
+    <form class="search__form" action="{{ routes.search_url }}" method="get" role="search">
+      <div class="field">
+        <label class="visually-hidden" for="NotFoundSearch-{{ section.id }}">{{ 'sections.header.search_label' | t }}</label>
+        <input
+          class="input"
+          type="search"
+          id="NotFoundSearch-{{ section.id }}"
+          name="q"
+          placeholder="{{ 'sections.header.search_placeholder' | t }}"
+          autocomplete="off"
+        >
+      </div>
+      <input type="hidden" name="options[prefix]" value="last">
+      <button class="btn btn--primary btn--l" type="submit">{{ 'search.submit' | t }}</button>
+    </form>
+
+    {%- assign nav_menu = section.settings.menu -%}
+    {%- if nav_menu.links.size > 0 -%}
+      <nav class="chips chips--wrap" aria-label="{{ 'sections.not_found.categories' | t }}">
+        {%- for link in nav_menu.links -%}
+          <a class="chip" href="{{ link.url }}">{{ link.title | escape }}</a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    <a class="btn btn--secondary" href="{{ routes.root_url }}">{{ 'sections.not_found.home' | t }}</a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Page not found",
+  "class": "section-404",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu shown as buttons",
+      "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 96
+    }
+  ]
+}
+{% endschema %}

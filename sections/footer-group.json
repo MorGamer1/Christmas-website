@@ -1,0 +1,48 @@
+{
+  "name": "Footer group",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "shop": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Shop",
+            "menu": "footer-shop"
+          }
+        },
+        "help": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Help",
+            "menu": "footer-help"
+          }
+        },
+        "company": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Company",
+            "menu": "footer-company"
+          }
+        }
+      },
+      "block_order": [
+        "shop",
+        "help",
+        "company"
+      ],
+      "settings": {
+        "color_scheme": "scheme-3",
+        "tagline": "Christmas lights, decorations and gifts at fair prices.",
+        "show_social": true,
+        "legal_text": "<p>[Company name] · [Street, postcode, city, country] · VAT [VAT number] · [Registration number]</p>",
+        "show_policies": true,
+        "show_payment": true
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

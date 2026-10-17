@@ -1,0 +1,87 @@
+{%- comment -%}
+  The quick results that appear while someone types in the search box.
+  Shopify renders this section in the background (the Predictive Search API) and theme.js puts the result in the search panel.
+  It is never shown on a page by itself, so it is not available in the theme editor.
+{%- endcomment -%}
+{%- if predictive_search.performed -%}
+  {%- liquid
+    assign found_queries = predictive_search.resources.queries
+    assign found_products = predictive_search.resources.products
+    assign found_collections = predictive_search.resources.collections
+    assign found_pages = predictive_search.resources.pages
+    assign found_articles = predictive_search.resources.articles
+
+    assign found_total = found_queries.size | plus: found_products.size | plus: found_collections.size
+    assign found_total = found_total | plus: found_pages.size | plus: found_articles.size
+
+    assign encoded_terms = predictive_search.terms | url_encode
+    assign all_results_url = routes.search_url | append: '?q=' | append: encoded_terms | append: '&options%5Bprefix%5D=last'
+  -%}
+  <div data-predictive-results>
+    {%- if found_total == 0 -%}
+      <p class="muted" role="status">{{ 'search.no_results_for' | t: terms: predictive_search.terms }}</p>
+    {%- else -%}
+      {%- if found_queries.size > 0 -%}
+        <h3>{{ 'search.suggestions' | t }}</h3>
+        <div class="searchpanel__chips">
+          {%- for query in found_queries -%}
+            <a class="chip" href="{{ query.url }}">{{ query.text | escape }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if found_products.size > 0 -%}
+        <h3>{{ 'search.products' | t }}</h3>
+        <ul class="sres" role="list">
+          {%- for product in found_products -%}
+            <li>
+              <a href="{{ product.url }}">
+                <span class="sres__media">
+                  {%- if product.featured_media != blank -%}
+                    {{
+                      product.featured_media
+                      | image_url: width: 160
+                      | image_tag: loading: 'lazy', widths: '52, 104, 156', sizes: '52px', alt: ''
+                    }}
+                  {%- endif -%}
+                </span>
+                <span>
+                  <b>{{ product.title | escape }}</b>
+                  {%- if product.metafields.custom.subtitle.value != blank -%}
+                    <span class="sres__meta">{{ product.metafields.custom.subtitle.value | escape }}</span>
+                  {%- endif -%}
+                </span>
+                <span class="tnum">{% render 'price', product: product %}</span>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if found_collections.size > 0 -%}
+        <h3>{{ 'search.collections' | t }}</h3>
+        <div class="searchpanel__chips">
+          {%- for collection in found_collections -%}
+            <a class="chip" href="{{ collection.url }}">{{ collection.title | escape }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if found_pages.size > 0 or found_articles.size > 0 -%}
+        <h3>{{ 'search.pages_and_articles' | t }}</h3>
+        <ul class="sres sres--text" role="list">
+          {%- for page in found_pages -%}
+            <li><a href="{{ page.url }}"><b>{{ page.title | escape }}</b></a></li>
+          {%- endfor -%}
+          {%- for article in found_articles -%}
+            <li><a href="{{ article.url }}"><b>{{ article.title | escape }}</b></a></li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      <a class="btn btn--secondary btn--block searchpanel__all" href="{{ all_results_url }}">
+        {{ 'search.see_all' | t: terms: predictive_search.terms }}
+      </a>
+    {%- endif -%}
+  </div>
+{%- endif -%}

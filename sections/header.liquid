@@ -1,0 +1,266 @@
+{%- comment -%}
+  Header: logo, main menu, search, account and cart.
+  On phones the main menu opens in a drawer. On desktop it sits in the header, and menu items that have
+  sub-items open a small panel. Search opens a panel at the top of the screen.
+  The menu, search and cart drawer are native <dialog> elements, opened by theme.js.
+{%- endcomment -%}
+{%- liquid
+  assign main_menu = section.settings.menu
+  assign extra_menu = section.settings.secondary_menu
+  assign popular_terms = section.settings.popular_searches | newline_to_br | split: '<br />'
+  assign cart_is_drawer = false
+  if settings.cart_type == 'drawer'
+    assign cart_is_drawer = true
+  endif
+-%}
+
+{%- comment -%} --sticky-top tells other sticky things (the filter bar, the photo gallery) how much room the header takes {%- endcomment -%}
+{%- if section.settings.sticky -%}
+  {%- style -%}
+    .section-header {
+      position: sticky;
+      top: 0;
+    }
+    :root {
+      --sticky-top: var(--header-height);
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+<header class="site-header color-{{ section.settings.color_scheme }}">
+  <div class="container site-header__row">
+    <button
+      class="icon-btn menu-btn"
+      type="button"
+      data-open="MenuDrawer"
+      aria-label="{{ 'sections.header.open_menu' | t }}"
+      aria-haspopup="dialog"
+      aria-controls="MenuDrawer"
+    >
+      {% render 'icon', name: 'menu' %}
+    </button>
+
+    <a class="logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {%- if settings.logo != blank -%}
+        {{
+          settings.logo
+          | image_url: width: 480
+          | image_tag:
+            class: 'logo__img',
+            width: settings.logo_width,
+            sizes: '240px',
+            widths: '120, 240, 360, 480',
+            loading: 'eager',
+            alt: ''
+        }}
+      {%- else -%}
+        <span>{{ shop.name | escape }}</span>
+        <svg class="logo__star" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-sparkle"/></svg>
+      {%- endif -%}
+    </a>
+
+    {%- if main_menu.links.size > 0 -%}
+      <nav class="nav" aria-label="{{ 'sections.header.main_nav' | t }}">
+        <ul class="nav__list" role="list">
+          {%- for link in main_menu.links -%}
+            <li>
+              {%- if link.links.size > 0 -%}
+                <details data-nav-details>
+                  <summary>
+                    {{- link.title | escape -}}
+                    {%- render 'icon', name: 'down', class: 'icon--xs' -%}
+                  </summary>
+                  <div class="nav__panel">
+                    <a href="{{ link.url }}">{{ 'sections.header.all_of' | t: title: link.title }}</a>
+                    {%- for child in link.links -%}
+                      <a href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                    {%- endfor -%}
+                  </div>
+                </details>
+              {%- else -%}
+                <a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- else -%}
+      <span></span>
+    {%- endif -%}
+
+    <div class="header__actions">
+      <button
+        class="icon-btn"
+        type="button"
+        data-open="SearchDialog"
+        aria-label="{{ 'sections.header.search' | t }}"
+        aria-haspopup="dialog"
+        aria-controls="SearchDialog"
+      >
+        {% render 'icon', name: 'search' %}
+      </button>
+
+      {%- if section.settings.show_account and shop.customer_accounts_enabled -%}
+        <a class="icon-btn hide-sm" href="{{ routes.account_url }}" aria-label="{{ 'sections.header.account' | t }}">
+          {% render 'icon', name: 'user' %}
+        </a>
+      {%- endif -%}
+
+      <a
+        class="icon-btn"
+        id="cart-icon-bubble"
+        href="{{ routes.cart_url }}"
+        data-cart-open
+        {% if cart_is_drawer %}
+          aria-haspopup="dialog"
+          aria-controls="CartDrawer"
+        {% endif %}
+      >
+        {% render 'cart-icon-bubble' %}
+      </a>
+    </div>
+  </div>
+</header>
+
+<dialog class="layer" id="MenuDrawer" aria-labelledby="MenuTitle">
+  <div class="layer__scrim" data-close></div>
+  <div class="drawer drawer--left color-{{ section.settings.color_scheme }}">
+    <div class="drawer__head">
+      <h2 id="MenuTitle" tabindex="-1">{{ 'sections.header.menu' | t }}</h2>
+      <button class="icon-btn" type="button" data-close aria-label="{{ 'general.close' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </div>
+    <div class="drawer__body">
+      <nav aria-label="{{ 'sections.header.mobile_nav' | t }}">
+        <div class="menu">
+          {%- for link in main_menu.links -%}
+            {%- if link.links.size > 0 -%}
+              <details>
+                <summary>
+                  {{- link.title | escape -}}
+                  {%- render 'icon', name: 'right', class: 'icon--sm' -%}
+                </summary>
+                <div class="menu__children">
+                  <a href="{{ link.url }}">{{ 'sections.header.all_of' | t: title: link.title }}</a>
+                  {%- for child in link.links -%}
+                    <a href="{{ child.url }}">{{ child.title | escape }}</a>
+                  {%- endfor -%}
+                </div>
+              </details>
+            {%- else -%}
+              <a href="{{ link.url }}">
+                {{- link.title | escape -}}
+                {%- render 'icon', name: 'right', class: 'icon--sm' -%}
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- if extra_menu.links.size > 0 or section.settings.show_account and shop.customer_accounts_enabled -%}
+          <div class="menu menu--small" style="margin-top: 24px">
+            {%- for link in extra_menu.links -%}
+              <a href="{{ link.url }}">{{ link.title | escape }}</a>
+            {%- endfor -%}
+            {%- if section.settings.show_account and shop.customer_accounts_enabled -%}
+              <a href="{{ routes.account_url }}">{{ 'sections.header.account' | t }}</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </nav>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="layer" id="SearchDialog" aria-label="{{ 'sections.header.search' | t }}">
+  <div class="layer__scrim" data-close></div>
+  <div class="searchpanel color-{{ section.settings.color_scheme }}">
+    <form
+      class="searchpanel__row"
+      role="search"
+      action="{{ routes.search_url }}"
+      method="get"
+      {% if settings.predictive_search_enabled %}
+        data-predictive-search
+      {% endif %}
+    >
+      <label class="visually-hidden" for="SearchInput">{{ 'sections.header.search_label' | t }}</label>
+      <input
+        class="input"
+        id="SearchInput"
+        type="search"
+        name="q"
+        value=""
+        placeholder="{{ 'sections.header.search_placeholder' | t }}"
+        autocomplete="off"
+        enterkeyhint="search"
+      >
+      <input type="hidden" name="options[prefix]" value="last">
+      <button class="icon-btn" type="button" data-close aria-label="{{ 'sections.header.close_search' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </form>
+    <div class="searchpanel__results" id="SearchResults" aria-live="polite">
+      {%- if popular_terms.size > 0 -%}
+        <div data-search-default>
+          <h3>{{ 'sections.header.popular_searches' | t }}</h3>
+          <div class="searchpanel__chips">
+            {%- for term in popular_terms -%}
+              {%- assign term_clean = term | strip -%}
+              {%- if term_clean != blank -%}
+                <a class="chip" href="{{ routes.search_url }}?q={{ term_clean | url_encode }}">{{ term_clean | escape }}</a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</dialog>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Main menu",
+      "default": "main-menu",
+      "info": "Menu items with sub-items open a small panel on desktop and a folding list on phones."
+    },
+    {
+      "type": "link_list",
+      "id": "secondary_menu",
+      "label": "Extra links in the phone menu",
+      "info": "Small links under the main menu on phones, for example Delivery, Returns and Contact."
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "Keep the header at the top while scrolling",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Show the account link",
+      "default": true,
+      "info": "Only shown if customer accounts are turned on in Settings > Customer accounts."
+    },
+    {
+      "type": "textarea",
+      "id": "popular_searches",
+      "label": "Popular searches",
+      "default": "Fairy lights\nCandles\nBaubles\nWrapping paper\nMug",
+      "info": "One per line. Shown as buttons when the search panel opens."
+    }
+  ]
+}
+{% endschema %}

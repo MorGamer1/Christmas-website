@@ -1,0 +1,45 @@
+{%- comment -%}
+  One or two sentences about the Christmas deadline and delivery times. It prints text only, so wrap it where you use it.
+  The wording changes by itself: before the last order date it promises Christmas delivery, after it warns that orders may arrive late.
+  Everything comes from Theme settings > Christmas and delivery.
+
+  Accepts:
+  - context: {String} (optional) 'cart' gives a shorter version for the cart, without the dispatch and transit times
+
+  Usage:
+  <p class="note">{% render 'delivery-note' %}</p>
+{%- endcomment -%}
+{%- liquid
+  capture season
+    render 'christmas-state'
+  endcapture
+
+  assign note = ''
+
+  if season == 'open'
+    capture date_text
+      render 'christmas-date', format: 'short'
+    endcapture
+    assign note = 'delivery.deadline_open' | t: date: date_text
+  elsif season == 'closed'
+    assign note = 'delivery.deadline_closed' | t
+  endif
+
+  if context == 'cart'
+    assign parcels = 'delivery.parcels' | t
+    assign note = note | append: ' ' | append: parcels
+  else
+    capture dispatch_text
+      render 'delivery-time', kind: 'dispatch'
+    endcapture
+    capture transit_text
+      render 'delivery-time', kind: 'transit'
+    endcapture
+    if dispatch_text != blank and transit_text != blank
+      assign times = 'delivery.times' | t: dispatch: dispatch_text, transit: transit_text
+      assign note = note | append: ' ' | append: times
+    endif
+  endif
+
+  echo note | strip
+-%}

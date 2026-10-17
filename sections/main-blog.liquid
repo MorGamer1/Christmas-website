@@ -1,0 +1,115 @@
+{%- comment -%}
+  A blog: gift guides, "how to" posts. Good for search engines, and for the shopper who is not sure what to buy yet.
+{%- endcomment -%}
+{% render 'section-padding', section: section %}
+{%- paginate blog.articles by section.settings.articles_per_page -%}
+  <div class="container section-{{ section.id }}-padding">
+    {% render 'breadcrumbs', current: blog.title %}
+
+    <div class="c-head">
+      <h1 class="t-display-l">{{ blog.title | escape }}</h1>
+    </div>
+
+    {%- if blog.all_tags.size > 0 -%}
+      <nav class="chips" aria-label="{{ 'blogs.tags_label' | t }}">
+        <a class="chip" href="{{ blog.url }}"{% unless current_tags %} aria-current="true"{% endunless %}>
+          {{- 'blogs.all' | t -}}
+        </a>
+        {%- for tag in blog.all_tags -%}
+          <a
+            class="chip"
+            href="{{ blog.url }}/tags/{{ tag | handleize }}"
+            {% if current_tags contains tag %}
+              aria-current="true"
+            {% endif %}
+          >
+            {{- tag | escape -}}
+          </a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    {%- if blog.articles.size == 0 -%}
+      <div class="empty">
+        <h2 class="t-heading-m">{{ 'blogs.empty_title' | t }}</h2>
+        <p class="muted">{{ 'blogs.empty_text' | t }}</p>
+      </div>
+    {%- else -%}
+      <ul class="posts" role="list">
+        {%- for article in blog.articles -%}
+          <li class="post">
+            <a class="post__media" href="{{ article.url }}" tabindex="-1" aria-hidden="true">
+              {%- if article.image != blank -%}
+                {{
+                  article.image
+                  | image_url: width: 900
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '360, 540, 720, 900',
+                    sizes: '(min-width: 1024px) 380px, (min-width: 640px) 45vw, 100vw',
+                    class: 'post__img',
+                    alt: ''
+                }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'post__img post__img--placeholder' }}
+              {%- endif -%}
+            </a>
+            <div class="post__body">
+              <p class="eyebrow">
+                {{- article.published_at | time_tag: format: 'date' -}}
+              </p>
+              <h2 class="t-heading-s"><a href="{{ article.url }}">{{ article.title | escape }}</a></h2>
+              {%- assign post_excerpt = article.excerpt_or_content | strip_html | truncate: 170 -%}
+              {%- if post_excerpt != blank -%}
+                <p class="muted">{{ post_excerpt }}</p>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+      {% render 'pagination', paginate: paginate %}
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "section-blog",
+  "settings": [
+    {
+      "type": "range",
+      "id": "articles_per_page",
+      "min": 3,
+      "max": 24,
+      "step": 3,
+      "label": "Posts per page",
+      "default": 9
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 88
+    }
+  ]
+}
+{% endschema %}
